@@ -23,13 +23,13 @@ public class AuthService {
         String encodePassword = passwordEncoder.encode(requestDto.getPassword());
 
         Optional<User> checkEmail = userRepository.findByUserEmail(requestDto.getUserEmail());
-        if(checkEmail.isPresent()) {
+        if (checkEmail.isPresent()) {
             throw new UserException(ErrorCode.DUPLICATE_EMAIL);
         }
 
 
         Optional<User> checkNickname = userRepository.findByNickname(requestDto.getNickname());
-        if(checkNickname.isPresent()) {
+        if (checkNickname.isPresent()) {
             throw new UserException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
