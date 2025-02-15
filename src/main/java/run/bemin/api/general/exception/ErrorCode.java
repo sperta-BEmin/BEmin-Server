@@ -29,7 +29,7 @@ public enum ErrorCode {
 
   // Signup (회원가입 관련 오류)
   DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
-  DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S002", "이미 존재하는 닉네임입니다."); // 마지막 세미콜론 허용됨 (아래 필드가 있으므로)
+  DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S002", "이미 존재하는 닉네임입니다.");
 
   private final int status;
   private final String code;
