@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import run.bemin.api.user.exception.UserException;
 
 @RestControllerAdvice
 @Slf4j
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-      MethodArgumentTypeMismatchException e) {
+          MethodArgumentTypeMismatchException e) {
     log.error("handleMethodArgumentTypeMismatchException", e);
     final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_REQUEST_PARAMETER, e.getParameter());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -80,7 +81,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-      HttpRequestMethodNotSupportedException e) {
+          HttpRequestMethodNotSupportedException e) {
     log.error("handleHttpRequestMethodNotSupportedException", e);
     final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
     return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
@@ -93,7 +94,7 @@ public class GlobalExceptionHandler {
   protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
     log.error("handleConstraintViolationException", e);
     final ErrorResponse response = ErrorResponse.of(ErrorCode.FAIL_REQUEST_PARAMETER_VALIDATION,
-        e.getConstraintViolations());
+            e.getConstraintViolations());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
 
@@ -116,5 +117,16 @@ public class GlobalExceptionHandler {
     final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND);
     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
   }
+
+  /**
+   * 사용자 정의 예외(UserException) 발생할 경우
+   */
+  @ExceptionHandler(UserException.class)
+  protected ResponseEntity<ErrorResponse> handleUserException(UserException e) {
+    log.error("handleUserException", e);
+    final ErrorResponse response = ErrorResponse.of(e.getErrorCode());
+    return new ResponseEntity<>(response, HttpStatus.valueOf(e.getErrorCode().getStatus()));
+  }
+
 
 }
