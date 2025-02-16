@@ -34,9 +34,8 @@ public class Order {
   @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
   private User user;
 
-  @ManyToOne
-  @JoinColumn(name = "store_id", referencedColumnName = "storeId", nullable = false)
-  private Store store;
+  @Column
+  private String storeId;
 
   @Convert(converter = OrderStatusConverter.class)
   @Column(nullable = false)

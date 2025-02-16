@@ -7,9 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UpdateOrderRequest {
-  private UUID orderId;
+public class CancelOrderRequest {
   @NotNull
-  private Integer statusCode; // 상태코드
-  private String riderTel; // 배달기사 전화번호
+  private UUID orderId; // 주문 ID
 }

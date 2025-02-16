@@ -13,12 +13,12 @@ public class OrderDomainService {
   /**
    * 주문 생성 로직
    */
-  public Order createOrder(User user, Store store, OrderType orderType, OrderAddress address) {
-    validateOrderCreation(user, store, orderType, address);
+  public Order createOrder(User user, String storeId, OrderType orderType, OrderAddress address) {
+    validateOrderCreation(user, storeId, orderType, address);
 
     return Order.builder()
         .user(user)
-        .store(store)
+        .storeId(storeId)
         .orderType(orderType)
         .orderAddress(address)
         .build();
@@ -28,16 +28,6 @@ public class OrderDomainService {
    * 주문상태 업데이트
    */
   public void updateOrder(Order order, UpdateOrderRequest req) {
-    // 주소값의 유무를 확인 후, 새 주소 객체 생성
-    if (hasAddress(req)) {
-      OrderAddress address = OrderAddress.of(
-          req.getBcode(),
-          req.getJibunAddress(),
-          req.getRoadAddress(),
-          req.getDetailAddress()
-      );
-      order.changeOrderAddress(address);
-    }
 
     // 배달기사 전화번호 변경
     if (req.getRiderTel() != null) {
@@ -66,8 +56,8 @@ public class OrderDomainService {
   /**
    * 주문 생성 검증 로직
    */
-  private void validateOrderCreation(User user, Store store, OrderType orderType, OrderAddress address) {
-    if (user == null || store == null || orderType == null) {
+  private void validateOrderCreation(User user, String storeId, OrderType orderType, OrderAddress address) {
+    if (user == null || storeId == null || orderType == null) {
       throw new IllegalArgumentException("createOrder parameters missing!!");
     }
 
