@@ -2,6 +2,7 @@ package run.bemin.api.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.user.dto.EmailCheckResponseDto;
 import run.bemin.api.user.dto.NicknameCheckResponseDto;
@@ -18,6 +19,7 @@ public class UserService {
     /**
      * 이메일 중복 체크
      **/
+    @Transactional(readOnly = true)
     public EmailCheckResponseDto checkEmail(String email) {
         validateEmail(email);
         boolean isDuplicate = userRepository.existsByUserEmail(email);
@@ -40,6 +42,7 @@ public class UserService {
     /**
      * 닉네임 중복 체크
      **/
+    @Transactional(readOnly = true)
     public NicknameCheckResponseDto checkNickname(String nickname) {
         validateNickname(nickname);
         boolean isDuplicate = userRepository.existsByNickname(nickname);

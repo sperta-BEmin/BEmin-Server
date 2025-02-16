@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import run.bemin.api.auth.dto.SigninRequestDto;
 import run.bemin.api.auth.jwt.JwtUtil;
 import run.bemin.api.user.entity.UserRoleEnum;
 
@@ -20,17 +21,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        setFilterProcessesUrl("/api/user/login");
+        setFilterProcessesUrl("/api/user/signin");
     }
 
 //    @Override
 //    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 //        try {
-//            LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
+//            SigninRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), SigninRequestDto.class);
 //
 //            return getAuthenticationManager().authenticate(
 //                    new UsernamePasswordAuthenticationToken(
-//                            requestDto.getUsername(),
+//                            requestDto.getUserEmail(),
 //                            requestDto.getPassword(),
 //                            null
 //                    )

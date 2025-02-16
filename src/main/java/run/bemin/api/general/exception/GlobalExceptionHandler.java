@@ -38,6 +38,17 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
     log.error("handleMethodArgumentNotValidException", e);
+
+    String errorMessage = e.getMessage();
+
+    // 이메일 또는 비밀번호가 올바르지 않다면 L002 오류 반환
+    if (errorMessage.contains("이메일을 입력해주세요.") ||
+            errorMessage.contains("이메일 형식이 올바르지 않습니다.") ||
+            errorMessage.contains("비밀번호를 입력해주세요.")) {
+      final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_CREDENTIALS);
+      return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
     final ErrorResponse response = ErrorResponse.of(ErrorCode.FAIL_REQUEST_PARAMETER_VALIDATION, e.getBindingResult());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
@@ -96,14 +107,14 @@ public class GlobalExceptionHandler {
 
     String errorMessage = e.getMessage();
 
-    // `@NotBlank(message = "닉네임을 입력해주세요.")` 메시지가 있다면 S006을 반환
+    // `@NotBlank(message = "이메일을 입력해주세요.")` 메시지가 있다면 S004 오류 반환
     if (errorMessage.contains("이메일을 입력해주세요.")) {
         final ErrorResponse response = ErrorResponse.of(ErrorCode.EMAIL_REQUIRED);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 
-    // `@NotBlank(message = "닉네임을 입력해주세요.")` 메시지가 있다면 S006을 반환
+    // `@NotBlank(message = "닉네임을 입력해주세요.")` 메시지가 있다면 S006 오류 반환
     if (errorMessage.contains("닉네임을 입력해주세요.")) {
         final ErrorResponse response = ErrorResponse.of(ErrorCode.NICKNAME_REQUIRED);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
