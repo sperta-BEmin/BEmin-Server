@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class EmailCheckResponseDto {
+public class NicknameCheckResponseDto {
     private boolean isDuplicate;
     private String message;
     private String code;
