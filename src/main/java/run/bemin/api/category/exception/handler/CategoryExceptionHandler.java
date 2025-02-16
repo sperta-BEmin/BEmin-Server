@@ -17,8 +17,10 @@ public class CategoryExceptionHandler {
 
   @ExceptionHandler(CategoryNotFoundException.class)
   public ResponseEntity<ErrorResponse> CategoryNotFoundException(CategoryNotFoundException e) {
+    List<FieldError> errors = FieldError.of("id", e.getMessage(), CATEGORY_NOT_FOUND.getMessage());
+
     return ResponseEntity.status(CATEGORY_NOT_FOUND.getStatus())
-        .body(ErrorResponse.of(CATEGORY_NOT_FOUND));
+        .body(ErrorResponse.of(CATEGORY_NOT_FOUND, errors));
   }
 
   @ExceptionHandler(CategoryNameInvalidException.class)

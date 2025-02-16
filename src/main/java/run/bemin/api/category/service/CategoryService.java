@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.category.dto.CategoryDto;
 import run.bemin.api.category.dto.request.CreateCategoryRequestDto;
+import run.bemin.api.category.dto.request.SoftDeleteCategoryRequestDto;
+import run.bemin.api.category.dto.request.UpdateCategoryRequestDto;
 import run.bemin.api.category.entity.Category;
 import run.bemin.api.category.exception.CategoryAlreadyExistsByNameException;
+import run.bemin.api.category.exception.CategoryNotFoundException;
 import run.bemin.api.category.repository.CategoryRepository;
 
 @RequiredArgsConstructor
@@ -58,5 +61,30 @@ public class CategoryService { // TODO: 회원 등록 유무/권한 체크 기�
         : categoryRepository.findAllByIsDeleted(filterDeleted, pageable);
 
     return categoryPage.map(CategoryDto::fromEntity);
+  }
+
+  @Transactional
+  public CategoryDto updatedCategory(UpdateCategoryRequestDto requestDto) {
+    existsCategoryByName(requestDto.name());
+
+    Category category = categoryRepository.findById(requestDto.categoryId())
+        .orElseThrow(() -> new CategoryNotFoundException(requestDto.categoryId().toString()));
+
+    category.update(requestDto.userEmail(), requestDto.name(), requestDto.isDeleted());
+    Category savedCategory = categoryRepository.save(category);
+
+    return CategoryDto.fromEntity(savedCategory);
+  }
+
+
+  @Transactional
+  public CategoryDto softDeleteCategory(SoftDeleteCategoryRequestDto requestDto) {
+    Category category = categoryRepository.findById(requestDto.categoryId())
+        .orElseThrow(() -> new CategoryNotFoundException(requestDto.categoryId().toString()));
+
+    category.softDelete(requestDto.userEmail());
+    Category softDeletedCategory = categoryRepository.save(category);
+
+    return CategoryDto.fromEntity(softDeletedCategory);
   }
 }

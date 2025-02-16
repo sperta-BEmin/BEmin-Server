@@ -1,7 +1,5 @@
 package run.bemin.api.category.entity;
 
-import static java.lang.Boolean.FALSE;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -82,10 +80,12 @@ public class Category {
     this.updatedAt = LocalDateTime.now();
   }
 
-  public void delete(String deletedBy) {
+  public void softDelete(String deletedBy) {
     this.deletedBy = deletedBy;
     this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+    this.updatedBy = deletedBy;
   }
 
   @PrePersist
