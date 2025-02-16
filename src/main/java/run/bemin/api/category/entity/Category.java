@@ -7,6 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,7 +29,7 @@ public class Category {
   @Column(name = "name", nullable = false, unique = true)
   private String name;
 
-  @Column(name = "is_active", nullable = false)
+  @Column(name = "is_deleted", nullable = false)
   @ColumnDefault("true")
   private Boolean isDeleted;
 
@@ -39,33 +42,60 @@ public class Category {
   @Column(name = "deleted_by", nullable = true)
   private String deletedBy;
 
-  private Category(
-      String name,
-      String createdBy,
-      Boolean isDeleted,
-      String updatedBy,
-      String deletedBy) {
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "updated_at", nullable = true)
+  private LocalDateTime updatedAt;
+
+  @Column(name = "deleted_at", nullable = true)
+  private LocalDateTime deletedAt;
+
+  private Category(String name, Boolean isDeleted, String createdBy, String updatedBy, String deletedBy,
+                   LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
     this.name = name;
     this.isDeleted = isDeleted;
     this.createdBy = createdBy;
     this.updatedBy = updatedBy;
     this.deletedBy = deletedBy;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+    this.deletedAt = deletedAt;
   }
 
-  public static Category create(
-      String name,
-      String createdBy) {
-    return new Category(name, createdBy, FALSE, null, null);
+  public static Category create(String name, String createdBy) {
+    return new Category(
+        name,
+        false,
+        createdBy,
+        null,
+        null,
+        LocalDateTime.now(),
+        null,
+        null);
   }
 
   public void update(String updatedBy, String name, Boolean isDeleted) {
     this.updatedBy = updatedBy;
     this.name = name;
     this.isDeleted = isDeleted != null ? isDeleted : this.isDeleted;
+    this.updatedAt = LocalDateTime.now();
   }
 
   public void delete(String deletedBy) {
     this.deletedBy = deletedBy;
+    this.isDeleted = true;
+    this.deletedAt = LocalDateTime.now();
+  }
+
+  @PrePersist
+  protected void onCreate() {
+    this.createdAt = LocalDateTime.now();
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
   }
 
 
