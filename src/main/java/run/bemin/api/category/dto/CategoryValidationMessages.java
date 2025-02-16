@@ -1,4 +1,4 @@
-package run.bemin.api.category.exception.validation;
+package run.bemin.api.category.dto;
 
 public class CategoryValidationMessages {
 
