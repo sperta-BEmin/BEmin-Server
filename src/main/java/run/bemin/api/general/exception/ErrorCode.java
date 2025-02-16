@@ -33,8 +33,18 @@ public enum ErrorCode {
   INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST.value(), "S003", "이메일 형식이 올바르지 않습니다."),
   EMAIL_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S004", "이메일을 입력해주세요."),
   INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST.value(), "S005", "닉네임 형식이 올바르지 않습니다."),
-  NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S006", "닉네임을 입력해주세요.");
+  NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S006", "닉네임을 입력해주세요."),
 
+  // Category (카테고리 관련 오류)
+  CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CC001", "해당 카테고리를 찾을 수 없습니다."),
+  CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT.value(), "CC002", "이미 존재하는 카테고리입니다."),
+  CATEGORY_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "CC003", "카테고리 업데이트에 실패했습니다."),
+  CATEGORY_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "CC004", "카테고리 삭제에 실패했습니다."),
+  CATEGORY_NAME_INVALID(HttpStatus.BAD_REQUEST.value(), "CC005", "카테고리 이름이 유효하지 않습니다."),
+  CATEGORY_IS_ACTIVE_INVALID(HttpStatus.BAD_REQUEST.value(), "CC006", "카테고리 활성화 여부가 유효하지 않습니다."),
+  CATEGORY_PARENT_INVALID(HttpStatus.BAD_REQUEST.value(), "CC007", "부모 카테고리 ID가 유효하지 않습니다."),
+  CATEGORY_DISABLED(HttpStatus.FORBIDDEN.value(), "CC009", "비활성화된 카테리입니다."),
+  CATEGORY_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "CC010", "카테고리에 대한 권한이 없습니다.");
 
   private final int status;
   private final String code;
