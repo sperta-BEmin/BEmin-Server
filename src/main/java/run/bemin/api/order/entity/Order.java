@@ -69,17 +69,6 @@ public class Order {
     }
   }
 
-  /**
-   * 빌더 클래스 커스터마이징, store 설정 시 storeName 자동 설정
-   */
-  public static class OrderBuilder {
-    public OrderBuilder store(Store store) {
-      this.store = store;
-      this.storeName = store != null ? store.getStoreName() : null;
-      return this;
-    }
-  }
-
   public void changeOrderAddress(OrderAddress newAddress) {
     if (newAddress == null) {
       throw new IllegalArgumentException("Order address cannot be null");

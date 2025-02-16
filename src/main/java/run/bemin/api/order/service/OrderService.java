@@ -41,6 +41,7 @@ public class OrderService {
         null, //User는 추후 JWT에서 가져오거나 수정이 필요하다.
         req.getStoreId(),
         orderType,
+        req.getStoreName(),
         orderAddress
     );
 

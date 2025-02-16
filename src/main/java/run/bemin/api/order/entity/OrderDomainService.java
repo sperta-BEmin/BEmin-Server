@@ -13,13 +13,14 @@ public class OrderDomainService {
   /**
    * 주문 생성 로직
    */
-  public Order createOrder(User user, String storeId, OrderType orderType, OrderAddress address) {
+  public Order createOrder(User user, String storeId, OrderType orderType, String storeName, OrderAddress address) {
     validateOrderCreation(user, storeId, orderType, address);
 
     return Order.builder()
         .user(user)
         .storeId(storeId)
         .orderType(orderType)
+        .storeName(storeName)
         .orderAddress(address)
         .build();
   }
@@ -83,15 +84,5 @@ public class OrderDomainService {
     if (!prev.canTransitionTo(next)) {
       throw new IllegalStateException("can not transition to " + prev + " to " + next);
     }
-  }
-
-  /**
-   * 주소 검증 로직
-   */
-  private boolean hasAddress(UpdateOrderRequest req) {
-    return req.getBcode() != null ||
-        req.getJibunAddress() != null ||
-        req.getRoadAddress() != null ||
-        req.getDetailAddress() != null;
   }
 }
