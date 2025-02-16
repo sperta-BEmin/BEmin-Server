@@ -31,7 +31,10 @@ public enum ErrorCode {
   DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
   DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S002", "이미 존재하는 닉네임입니다."),
   INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST.value(), "S003", "이메일 형식이 올바르지 않습니다."),
-  EMAIL_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S004", "이메일을 입력해주세요.");
+  EMAIL_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S004", "이메일을 입력해주세요."),
+  INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST.value(), "S005", "닉네임 형식이 올바르지 않습니다."),
+  NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S006", "닉네임을 입력해주세요.");
+
 
   private final int status;
   private final String code;
