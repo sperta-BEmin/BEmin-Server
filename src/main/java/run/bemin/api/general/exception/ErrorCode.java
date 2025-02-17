@@ -26,6 +26,7 @@ public enum ErrorCode {
   BIND_ERROR(HttpStatus.BAD_REQUEST.value(), "C010", "바인딩 에러가 발생했습니다. 파라미터를 확인해주세요."),
   ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST.value(), "C011", "illegalArgument error"),
   NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C012", "페이지를 찾을 수 없습니다."),
+  INVALID_ACCESS(HttpStatus.UNAUTHORIZED.value(),"C013","권한이 존재하지 않습니다."),
 
   // Signup (회원가입 관련 오류)
   DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
