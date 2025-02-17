@@ -1,11 +1,11 @@
-package run.bemin.api.order.dto;
+package run.bemin.api.order.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
-import lombok.Builder;
 import lombok.Getter;
+import run.bemin.api.order.dto.ProductDetailDTO;
 
 @Getter
 public class AddOrderDetailRequest {

@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import run.bemin.api.order.dto.CancelOrderRequest;
-import run.bemin.api.order.dto.CreateOrderRequest;
-import run.bemin.api.order.dto.PagesResponse;
+import run.bemin.api.order.dto.request.CancelOrderRequest;
+import run.bemin.api.order.dto.request.CreateOrderRequest;
+import run.bemin.api.order.dto.response.PagesResponse;
 import run.bemin.api.order.dto.ProductDetailDTO;
-import run.bemin.api.order.dto.ReadOrderResponse;
-import run.bemin.api.order.dto.UpdateOrderRequest;
+import run.bemin.api.order.dto.response.ReadOrderResponse;
+import run.bemin.api.order.dto.request.UpdateOrderRequest;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.service.OrderService;
 

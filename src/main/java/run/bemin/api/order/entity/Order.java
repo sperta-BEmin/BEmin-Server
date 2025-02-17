@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.order.exception.OrderNullException;
 import run.bemin.api.user.entity.User;
 
 @Entity
@@ -70,14 +71,14 @@ public class Order {
 
   public void changeOrderAddress(OrderAddress newAddress) {
     if (newAddress == null) {
-      throw new IllegalArgumentException("Order address cannot be null");
+      throw new OrderNullException("Order address cannot be null");
     }
     this.orderAddress = newAddress;
   }
 
   public void changeOrderStatus(OrderStatus newStatus) {
     if (newStatus == null) {
-      throw new IllegalArgumentException("Order status cannot be null");
+      throw new OrderNullException("Order status cannot be null");
     }
     this.orderStatus = newStatus;
   }

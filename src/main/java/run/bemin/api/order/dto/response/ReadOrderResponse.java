@@ -1,4 +1,4 @@
-package run.bemin.api.order.dto;
+package run.bemin.api.order.dto.response;
 
 import java.util.UUID;
 import lombok.Builder;

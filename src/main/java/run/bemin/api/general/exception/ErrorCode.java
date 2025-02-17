@@ -64,7 +64,13 @@ public enum ErrorCode {
   STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다."),
 
   // Payment Error Code (결제 관련 오류)
-  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "주문이 존재하지 않습니다.");
+  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "주문이 존재하지 않습니다."),
+
+  // Order (주문 관련 오류)
+  ORDER_NOT_FOUND2(HttpStatus.NOT_FOUND.value(), "OR001", "주문이 존재하지 않습니다."),
+  ORDER_INVALID_STATUS_CODE(HttpStatus.BAD_REQUEST.value(), "OR002", "잘못된 주문 요청입니다."),
+  ORDER_INVALID_TYPE_CODE(HttpStatus.BAD_REQUEST.value(), "OR003", "잘못된 상태 변경 요청입니다."),
+  ORDER_NULL_VALUE(HttpStatus.BAD_REQUEST.value(), "OR004", "빈 값이 입력되었습니다.");
 
   private final int status;
   private final String code;

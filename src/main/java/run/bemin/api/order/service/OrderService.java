@@ -8,17 +8,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import run.bemin.api.order.dto.CancelOrderRequest;
-import run.bemin.api.order.dto.CreateOrderRequest;
-import run.bemin.api.order.dto.PagesResponse;
+import run.bemin.api.order.dto.request.CancelOrderRequest;
+import run.bemin.api.order.dto.request.CreateOrderRequest;
+import run.bemin.api.order.dto.response.PagesResponse;
 import run.bemin.api.order.dto.ProductDetailDTO;
-import run.bemin.api.order.dto.ReadOrderResponse;
-import run.bemin.api.order.dto.UpdateOrderRequest;
+import run.bemin.api.order.dto.response.ReadOrderResponse;
+import run.bemin.api.order.dto.request.UpdateOrderRequest;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.entity.OrderAddress;
 import run.bemin.api.order.entity.OrderDetail;
 import run.bemin.api.order.entity.OrderDomainService;
 import run.bemin.api.order.entity.OrderType;
+import run.bemin.api.order.exception.OrderNotFoundException;
 import run.bemin.api.order.repo.OrderDetailRepository;
 import run.bemin.api.order.repo.OrderRepository;
 
@@ -105,7 +106,7 @@ public class OrderService {
    */
   public List<ProductDetailDTO> getOrderDetailsByOrderId(UUID orderId) {
     Order order = orderRepository.findById(orderId)
-        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        .orElseThrow(() -> new OrderNotFoundException(orderId));
 
     return order.getOrderDetails().stream()
         .map(orderDetail -> ProductDetailDTO.builder()
@@ -127,7 +128,7 @@ public class OrderService {
   public Order updateOrder(UpdateOrderRequest req) {
     // 1. Order 객체 찾기
     Order order = orderRepository.findById(req.getOrderId())
-        .orElseThrow(() -> new IllegalArgumentException("Order Not Fount id : " + req.getOrderId()));
+        .orElseThrow(() -> new OrderNotFoundException(req.getOrderId()));
 
     // 2. 도메인 서비스로 비즈니스 로직 실행
     orderDomainService.updateOrder(order, req);
@@ -140,7 +141,7 @@ public class OrderService {
   public void cancelOrder(CancelOrderRequest req) {
     // 1. Order객체 찾기
     Order order = orderRepository.findById(req.getOrderId())
-        .orElseThrow(() -> new IllegalArgumentException("Order Not Found id : " + req.getOrderId()));
+        .orElseThrow(() -> new OrderNotFoundException(req.getOrderId()));
 
     // 2. 도메인 서비스 비즈니스 로직 실행
     orderDomainService.cancelOrder(order);
