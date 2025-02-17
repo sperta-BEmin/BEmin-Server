@@ -14,5 +14,5 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
    * @param pageable
    * @return
    */
-  Page<Order> findAllByUserId(String userId, Pageable pageable);
+  Page<Order> findAllByUser_UserEmail(String userId, Pageable pageable);
 }

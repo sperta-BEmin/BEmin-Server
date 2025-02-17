@@ -60,7 +60,7 @@ public class OrderService {
   @Transactional(readOnly = true)
   public PagesResponse<ReadOrderResponse> getOrdersByUserId(String userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    Page<Order> orders = orderRepository.findAllByUserId(userId, pageable);
+    Page<Order> orders = orderRepository.findAllByUser_UserEmail(userId, pageable);
 
     // Order -> OrderResponse 변환
     List<ReadOrderResponse> data = orders.getContent().stream()
