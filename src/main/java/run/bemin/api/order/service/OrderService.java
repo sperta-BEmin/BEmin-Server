@@ -138,7 +138,7 @@ public class OrderService {
   }
 
   @Transactional
-  public void cancelOrder(CancelOrderRequest req) {
+  public Order cancelOrder(CancelOrderRequest req) {
     // 1. Order객체 찾기
     Order order = orderRepository.findById(req.getOrderId())
         .orElseThrow(() -> new OrderNotFoundException(req.getOrderId()));
@@ -147,6 +147,6 @@ public class OrderService {
     orderDomainService.cancelOrder(order);
 
     // 3. 취소 상태 저장
-    orderRepository.save(order);
+    return orderRepository.save(order);
   }
 }
