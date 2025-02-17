@@ -1,6 +1,8 @@
 package run.bemin.api.order.control;
 
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import run.bemin.api.order.dto.CancelOrderRequest;
 import run.bemin.api.order.dto.CreateOrderRequest;
 import run.bemin.api.order.dto.PagesResponse;
+import run.bemin.api.order.dto.ProductDetailDTO;
 import run.bemin.api.order.dto.ReadOrderResponse;
 import run.bemin.api.order.dto.UpdateOrderRequest;
 import run.bemin.api.order.entity.Order;
@@ -39,24 +42,36 @@ public class OrderController {
    * 주문 내역 조회 (페이징 처리)
    */
   @GetMapping("/check")
-  public ResponseEntity<PagesResponse<ReadOrderResponse>> getOrdersByUserId(
+  public ResponseEntity<PagesResponse<ReadOrderResponse>> getOrdersByUserEmail(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
-      @RequestAttribute("userId") String userId // JWT 공용 메서드에서 값 획득
+      @RequestAttribute("userEmail") String userEmail // JWT 공용 메서드에서 값 획득
   ) {
-    PagesResponse<ReadOrderResponse> rep = orderService.getOrdersByUserId(userId, page, size);
+    PagesResponse<ReadOrderResponse> rep = orderService.getOrdersByUserEmail(userEmail, page, size);
     return ResponseEntity.ok(rep);
+  }
+
+  /**
+   * 주문 상세 조회
+   */
+  @GetMapping("/detail")
+  public ResponseEntity<List<ProductDetailDTO>> getOrderDetailsByOrderId(@RequestParam UUID orderId) {
+    List<ProductDetailDTO> productDetailDTOS = orderService.getOrderDetailsByOrderId(orderId);
+    return ResponseEntity.ok(productDetailDTOS);
   }
 
   /**
    * 주문 상태 및 배달기사 정보 수정
    */
-  @PatchMapping("/order/{orderId}")
+  @PatchMapping("/update")
   public ResponseEntity<Order> updateOrder(@RequestBody @Valid UpdateOrderRequest req) {
     Order updatedOrder = orderService.updateOrder(req);
     return ResponseEntity.ok(updatedOrder);
   }
 
+  /**
+   * 주문 취소
+   */
   @PatchMapping("/cancel")
   public ResponseEntity<Void> cancelOrder(@RequestBody @Valid CancelOrderRequest req) {
     orderService.cancelOrder(req);

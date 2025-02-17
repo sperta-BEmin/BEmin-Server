@@ -1,6 +1,7 @@
 package run.bemin.api.order.service;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,12 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.order.dto.CancelOrderRequest;
 import run.bemin.api.order.dto.CreateOrderRequest;
 import run.bemin.api.order.dto.PagesResponse;
+import run.bemin.api.order.dto.ProductDetailDTO;
 import run.bemin.api.order.dto.ReadOrderResponse;
 import run.bemin.api.order.dto.UpdateOrderRequest;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.entity.OrderAddress;
+import run.bemin.api.order.entity.OrderDetail;
 import run.bemin.api.order.entity.OrderDomainService;
 import run.bemin.api.order.entity.OrderType;
+import run.bemin.api.order.repo.OrderDetailRepository;
 import run.bemin.api.order.repo.OrderRepository;
 
 @Service
@@ -23,6 +27,7 @@ import run.bemin.api.order.repo.OrderRepository;
 public class OrderService {
 
   private final OrderRepository orderRepository;
+  private final OrderDetailRepository orderDetailRepository;
   private final OrderDomainService orderDomainService = new OrderDomainService();
 
   /**
@@ -45,22 +50,32 @@ public class OrderService {
         orderAddress
     );
 
-    // 4. 저장
+    // 4. OrderDetail 추가
+    req.getProducts().stream()
+        .map(product -> OrderDetail.builder()
+            .productId(product.getProductId())
+            .productName(product.getProductName())
+            .quantity(product.getQuantity())
+            .price(product.getPrice())
+            .build())
+        .forEach(order::addOrderDetail); // 연관 관계 설정
+
+    // 4. Order 저장 (CascadeType.ALL로 OrderDetails들도 저장)
     return orderRepository.save(order);
   }
 
   /**
    * 사용자의 주문 내역 조회(페이징 처리)
    *
-   * @param userId 사용자 ID (JWT에서 추출된 PK)
+   * @param userEmail 사용자 EMAIL (JWT에서 추출된 PK)
    * @param page   조회할 페이지 번호(0부터 시작)
    * @param size   한 페이지에 담겨지는 데이터의 갯수
    * @return 페이징 처리되어 반환되는 주문 목록
    */
   @Transactional(readOnly = true)
-  public PagesResponse<ReadOrderResponse> getOrdersByUserId(String userId, int page, int size) {
+  public PagesResponse<ReadOrderResponse> getOrdersByUserEmail(String userEmail, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    Page<Order> orders = orderRepository.findAllByUser_UserEmail(userId, pageable);
+    Page<Order> orders = orderRepository.findAllByUser_UserEmail(userEmail, pageable);
 
     // Order -> OrderResponse 변환
     List<ReadOrderResponse> data = orders.getContent().stream()
@@ -81,6 +96,25 @@ public class OrderService {
         .pageSize(orders.getSize())
         .totalElements(orders.getTotalPages())
         .build();
+  }
+
+  /**
+   * orderId로 OrderDetail들을 조회하여 List로 반환
+   * @param orderId // orderId
+   * @return // ProductDetailDTO List
+   */
+  public List<ProductDetailDTO> getOrderDetailsByOrderId(UUID orderId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+    return order.getOrderDetails().stream()
+        .map(orderDetail -> ProductDetailDTO.builder()
+            .productId(orderDetail.getProductId())
+            .productName(orderDetail.getProductName())
+            .quantity(orderDetail.getQuantity())
+            .price(orderDetail.getPrice())
+            .build())
+        .toList();
   }
 
   /**
