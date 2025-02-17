@@ -17,7 +17,7 @@ import run.bemin.api.category.entity.Category;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
+@Entity(name = "p_store_category")
 public class StoreCategory {
 
   @Id
