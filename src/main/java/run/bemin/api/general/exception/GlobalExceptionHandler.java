@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,8 +44,8 @@ public class GlobalExceptionHandler {
 
     // 이메일 또는 비밀번호가 올바르지 않다면 L002 오류 반환
     if (errorMessage.contains("이메일을 입력해주세요.") ||
-            errorMessage.contains("이메일 형식이 올바르지 않습니다.") ||
-            errorMessage.contains("비밀번호를 입력해주세요.")) {
+        errorMessage.contains("이메일 형식이 올바르지 않습니다.") ||
+        errorMessage.contains("비밀번호를 입력해주세요.")) {
       final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_CREDENTIALS);
       return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
@@ -70,7 +71,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-          MethodArgumentTypeMismatchException e) {
+      MethodArgumentTypeMismatchException e) {
     log.error("handleMethodArgumentTypeMismatchException", e);
     final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_REQUEST_PARAMETER, e.getParameter());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -92,7 +93,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-          HttpRequestMethodNotSupportedException e) {
+      HttpRequestMethodNotSupportedException e) {
     log.error("handleHttpRequestMethodNotSupportedException", e);
     final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
     return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
@@ -109,19 +110,18 @@ public class GlobalExceptionHandler {
 
     // `@NotBlank(message = "이메일을 입력해주세요.")` 메시지가 있다면 S004 오류 반환
     if (errorMessage.contains("이메일을 입력해주세요.")) {
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.EMAIL_REQUIRED);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+      final ErrorResponse response = ErrorResponse.of(ErrorCode.EMAIL_REQUIRED);
+      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
 
     // `@NotBlank(message = "닉네임을 입력해주세요.")` 메시지가 있다면 S006 오류 반환
     if (errorMessage.contains("닉네임을 입력해주세요.")) {
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.NICKNAME_REQUIRED);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+      final ErrorResponse response = ErrorResponse.of(ErrorCode.NICKNAME_REQUIRED);
+      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     final ErrorResponse response = ErrorResponse.of(ErrorCode.FAIL_REQUEST_PARAMETER_VALIDATION,
-            e.getConstraintViolations());
+        e.getConstraintViolations());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
 
@@ -155,5 +155,10 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(response, HttpStatus.valueOf(e.getErrorCode().getStatus()));
   }
 
-
+  @ExceptionHandler(AccessDeniedException.class)
+  protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+    log.error("handleAccessDeniedException", e);
+    final ErrorResponse response = ErrorResponse.of(ErrorCode.AUTH_ACCESS_DENIED);
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+  }
 }
