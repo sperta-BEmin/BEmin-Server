@@ -93,6 +93,22 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ConstraintViolationException.class)
   protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
     log.error("handleConstraintViolationException", e);
+
+    String errorMessage = e.getMessage();
+
+    // `@NotBlank(message = "닉네임을 입력해주세요.")` 메시지가 있다면 S006을 반환
+    if (errorMessage.contains("이메일을 입력해주세요.")) {
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.EMAIL_REQUIRED);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    // `@NotBlank(message = "닉네임을 입력해주세요.")` 메시지가 있다면 S006을 반환
+    if (errorMessage.contains("닉네임을 입력해주세요.")) {
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NICKNAME_REQUIRED);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     final ErrorResponse response = ErrorResponse.of(ErrorCode.FAIL_REQUEST_PARAMETER_VALIDATION,
             e.getConstraintViolations());
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
