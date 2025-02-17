@@ -22,6 +22,10 @@ public class UserDetailsImpl implements UserDetails {
         return user;
     }
 
+    public UserRoleEnum getRole(){
+        return user.getRole();
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();
