@@ -14,13 +14,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
+import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.user.entity.User;
 
 @Entity
 @Getter
 @Table(name = "product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Product {
+public class Product extends AuditableEntity {
 
   @Id
   @UuidGenerator
