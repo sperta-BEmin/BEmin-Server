@@ -55,11 +55,13 @@ public class WebSecurityConfig {
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/api/users/email/**").permitAll()
             .requestMatchers("/api/users/nickname/**").permitAll()
+            .requestMatchers("/api/**").permitAll()
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리
     );
 
     // 필터 관리
-    http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

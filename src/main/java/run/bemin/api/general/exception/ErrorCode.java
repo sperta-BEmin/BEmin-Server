@@ -26,6 +26,7 @@ public enum ErrorCode {
   BIND_ERROR(HttpStatus.BAD_REQUEST.value(), "C010", "바인딩 에러가 발생했습니다. 파라미터를 확인해주세요."),
   ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST.value(), "C011", "illegalArgument error"),
   NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C012", "페이지를 찾을 수 없습니다."),
+  INVALID_ACCESS(HttpStatus.UNAUTHORIZED.value(),"C013","권한이 존재하지 않습니다."),
 
   // Signup (회원가입 관련 오류)
   DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
@@ -60,8 +61,10 @@ public enum ErrorCode {
   STORE_MINIMUM_PRICE_INVALID(HttpStatus.BAD_REQUEST.value(), "ST007", "최소 주문 금액이 유효하지 않습니다."),
   STORE_RATING_INVALID(HttpStatus.BAD_REQUEST.value(), "ST008", "가게 평점이 유효하지 않습니다."),
   STORE_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "ST009", "가게에 대한 권한이 없습니다."),
-  STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다.");
+  STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다."),
 
+  // Payment Error Code (결제 관련 오류)
+  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "주문이 존재하지 않습니다.");
 
   private final int status;
   private final String code;
