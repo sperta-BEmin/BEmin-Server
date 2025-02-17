@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.user.entity.User;
 
 @Entity
 @Getter
@@ -31,7 +32,7 @@ public class Order {
   private UUID orderId;
 
   @ManyToOne
-  @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   @Column

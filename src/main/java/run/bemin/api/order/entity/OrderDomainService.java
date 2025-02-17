@@ -1,6 +1,7 @@
 package run.bemin.api.order.entity;
 
 import run.bemin.api.order.dto.UpdateOrderRequest;
+import run.bemin.api.user.entity.User;
 
 /*
  * 주문 생성 로직
