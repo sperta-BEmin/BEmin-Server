@@ -15,14 +15,7 @@ public record CreateCategoryRequestDto(
         regexp = "^[가-힣0-9·!\\s]{1,16}$",
         message = CATEGORY_NAME_INVALID
     )
-    String name,
-
-    @NotBlank(message = USER_EMAIL_BLANK)
-    @Pattern(
-        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-        message = USER_EMAIL_INVALID
-    )
-    String userEmail
+    String name
 ) {
 
 }
