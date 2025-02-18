@@ -37,7 +37,8 @@ public class JwtUtil {
   private final long REFRESHTOKEN_TIME = 3 * 60 * 1000L;
 
   @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
-  private String secretKey;
+  public
+  String secretKey;
   private Key key;
   private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
@@ -110,5 +111,11 @@ public class JwtUtil {
   // 토큰에서 사용자 정보 가져오기
   public Claims getUserInfoFromToken(String token) {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+  }
+
+  // 토큰에서 사용자 이메일(Subject) 가져오기
+  public String getUserEmailFromToken(String token) {
+    Claims claims = getUserInfoFromToken(token);
+    return claims.getSubject();
   }
 }
