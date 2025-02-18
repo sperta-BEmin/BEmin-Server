@@ -51,7 +51,8 @@ public enum ErrorCode {
   USER_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "U003", "사용자 목록 조회에 실패했습니다."),
   USER_PAGE_SIZE_INVALID(HttpStatus.BAD_REQUEST.value(), "U004", "페이지 크기는 0보다 커야 합니다."),
   USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U005", "해당 이메일의 사용자를 찾을 수 없습니다."),
-
+  USER_DUPLICATE_NICKNAME(HttpStatus.CONFLICT.value(), "U006", "닉네임이 이미 존재합니다."),
+  USER_NO_FIELD_UPDATED(HttpStatus.BAD_REQUEST.value(), "U007", "아무것도 변경하지 않았습니다."),
 
   // Category (카테고리 관련 오류)
   CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CC001", "해당 카테고리를 찾을 수 없습니다."),

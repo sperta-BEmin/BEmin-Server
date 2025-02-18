@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.user.dto.UserResponseDto;
+import run.bemin.api.user.dto.UserUpdateRequestDto;
 import run.bemin.api.user.entity.User;
+import run.bemin.api.user.exception.UserDuplicateNicknameException;
 import run.bemin.api.user.exception.UserListNotFoundException;
+import run.bemin.api.user.exception.UserNoFieldUpdatedException;
 import run.bemin.api.user.exception.UserNotFoundException;
 import run.bemin.api.user.exception.UserPageIndexInvalidException;
 import run.bemin.api.user.exception.UserPageSizeInvalidException;
@@ -19,7 +23,9 @@ import run.bemin.api.user.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   /**
    * 전체 회원 조회
@@ -71,5 +77,54 @@ public class UserService {
             user.getRole()
         ))
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+  }
+
+  @Transactional
+  public UserResponseDto updateUser(String userEmail, UserUpdateRequestDto requestDto) {
+    return updateUserInfo(userEmail, requestDto);
+  }
+
+  private UserResponseDto updateUserInfo(String userEmail, UserUpdateRequestDto requestDto) {
+    User user = userRepository.findById(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+
+    boolean isUpdateRequested = false;
+
+    String encodePassword = null;
+    if (requestDto.getPassword() != null && !requestDto.getPassword().trim().isEmpty()) {
+      encodePassword = passwordEncoder.encode(requestDto.getPassword());
+      isUpdateRequested = true;
+    }
+
+    String nickname = null;
+    if (requestDto.getNickname() != null && !requestDto.getNickname().trim().isEmpty()) {
+      nickname = requestDto.getNickname();
+      isUpdateRequested = true;
+
+      // 닉네임 중복 검증
+      if (!nickname.equals(user.getNickname()) && userRepository.existsByNickname(nickname)) {
+        throw new UserDuplicateNicknameException(ErrorCode.USER_DUPLICATE_NICKNAME.getMessage());
+      }
+    }
+
+    String phone = null;
+    if (requestDto.getPhone() != null && !requestDto.getPhone().trim().isEmpty()) {
+      phone = requestDto.getPhone();
+      isUpdateRequested = true;
+    }
+
+    String address = null;
+    if (requestDto.getAddress() != null && !requestDto.getAddress().trim().isEmpty()) {
+      address = requestDto.getAddress();
+      isUpdateRequested = true;
+    }
+
+    // 아무 필드도 업데이트 요청이 없는 경우 예외 발생
+    if (!isUpdateRequested) {
+      throw new UserNoFieldUpdatedException(ErrorCode.USER_NO_FIELD_UPDATED.getMessage());
+    }
+
+    user.updateUserInfo(encodePassword, nickname, phone, address);
+    return new UserResponseDto(user);
   }
 }
