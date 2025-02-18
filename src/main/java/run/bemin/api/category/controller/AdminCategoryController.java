@@ -8,6 +8,8 @@ import static run.bemin.api.category.dto.CategoryResponseCode.CATEGORY_UPDATED;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,23 +24,34 @@ import run.bemin.api.category.dto.request.SoftDeleteCategoryRequestDto;
 import run.bemin.api.category.dto.request.UpdateCategoryRequestDto;
 import run.bemin.api.category.service.CategoryService;
 import run.bemin.api.general.response.ApiResponse;
+import run.bemin.api.security.UserDetailsImpl;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/category")
 @RestController
-public class AdminCategoryController { // TODO: 권한 설정 필요하다.
+public class AdminCategoryController {
 
   private final CategoryService categoryService;
 
+  @PreAuthorize("hasAnyRole(" +
+      "T(run.bemin.api.user.entity.UserRoleEnum).OWNER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
   @PostMapping
   public ResponseEntity<ApiResponse<CategoryDto>> createCategory(
-      @RequestBody CreateCategoryRequestDto requestDto) {
-    CategoryDto categoryDto = categoryService.createCategory(requestDto);
+      @RequestBody CreateCategoryRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    CategoryDto categoryDto = categoryService.createCategory(requestDto, userDetails);
+
     return ResponseEntity
         .status(CATEGORY_CREATED.getStatus())
         .body(ApiResponse.from(CATEGORY_CREATED.getStatus(), CATEGORY_CREATED.getMessage(), categoryDto));
   }
 
+  @PreAuthorize("hasAnyRole(" +
+      "T(run.bemin.api.user.entity.UserRoleEnum).CUSTOMER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).OWNER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
   @GetMapping
   public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAllCategories(
       @RequestParam(value = "name", required = false) String name,
@@ -61,6 +74,11 @@ public class AdminCategoryController { // TODO: 권한 설정 필요하다.
         ApiResponse.from(CATEGORIES_FETCHED.getStatus(), CATEGORIES_FETCHED.getMessage(), categories));
   }
 
+  @PreAuthorize("hasAnyRole(" +
+      "T(run.bemin.api.user.entity.UserRoleEnum).CUSTOMER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).OWNER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
+      "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
   @PatchMapping
   public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(@RequestBody UpdateCategoryRequestDto requestDto) {
     CategoryDto categoryDto = categoryService.updatedCategory(requestDto);
@@ -71,7 +89,8 @@ public class AdminCategoryController { // TODO: 권한 설정 필요하다.
   }
 
   @DeleteMapping
-  public ResponseEntity<ApiResponse<CategoryDto>> softDeleteCategory(@RequestBody SoftDeleteCategoryRequestDto requestDto) {
+  public ResponseEntity<ApiResponse<CategoryDto>> softDeleteCategory(
+      @RequestBody SoftDeleteCategoryRequestDto requestDto) {
     CategoryDto categoryDto = categoryService.softDeleteCategory(requestDto);
 
     return ResponseEntity

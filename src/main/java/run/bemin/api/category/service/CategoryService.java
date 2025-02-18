@@ -2,10 +2,12 @@ package run.bemin.api.category.service;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.category.dto.CategoryDto;
@@ -16,12 +18,16 @@ import run.bemin.api.category.entity.Category;
 import run.bemin.api.category.exception.CategoryAlreadyExistsByNameException;
 import run.bemin.api.category.exception.CategoryNotFoundException;
 import run.bemin.api.category.repository.CategoryRepository;
+import run.bemin.api.security.UserDetailsImpl;
+import run.bemin.api.user.repository.UserRepository;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class CategoryService { // TODO: 회원 등록 유무/권한 체크 기능 구현이 필요하다.
 
   private final CategoryRepository categoryRepository;
+  private final UserRepository userRepository;
 
   private void existsCategoryByName(String name) {
     if (categoryRepository.existsCategoryByName(name)) {
@@ -29,12 +35,19 @@ public class CategoryService { // TODO: 회원 등록 유무/권한 체크 기�
     }
   }
 
+  private void existsByUserEmail(String userEmail) {
+    if (!userRepository.existsByUserEmail(userEmail)) {
+      throw new UsernameNotFoundException(userEmail);
+    }
+  }
 
   @Transactional
-  public CategoryDto createCategory(CreateCategoryRequestDto requestDto) {
+  public CategoryDto createCategory(CreateCategoryRequestDto requestDto, UserDetailsImpl userDetails) {
     existsCategoryByName(requestDto.name());
 
-    Category category = Category.create(requestDto.name(), requestDto.userEmail());
+    existsByUserEmail(userDetails.getUsername());
+
+    Category category = Category.create(requestDto.name(), userDetails.getUsername());
 
     categoryRepository.save(category);
 
