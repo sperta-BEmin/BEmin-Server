@@ -50,6 +50,9 @@ public enum ErrorCode {
   USER_LIST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U002", "조회된 사용자가 없습니다."),
   USER_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "U003", "사용자 목록 조회에 실패했습니다."),
   USER_PAGE_SIZE_INVALID(HttpStatus.BAD_REQUEST.value(), "U004", "페이지 크기는 0보다 커야 합니다."),
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U005", "해당 이메일의 사용자를 찾을 수 없습니다."),
+  USER_DUPLICATE_NICKNAME(HttpStatus.CONFLICT.value(), "U006", "닉네임이 이미 존재합니다."),
+  USER_NO_FIELD_UPDATED(HttpStatus.BAD_REQUEST.value(), "U007", "아무것도 변경하지 않았습니다."),
 
   // Category (카테고리 관련 오류)
   CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CC001", "해당 카테고리를 찾을 수 없습니다."),
@@ -75,8 +78,8 @@ public enum ErrorCode {
   STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다."),
 
   // Product (상품 관련 오류)
-  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND.value(),"PR001","상품을 찾을 수 없습니다."),
-  DELETED_PRODUCT(HttpStatus.BAD_REQUEST.value(),"PR002","이미 삭제된 상품입니다."),
+  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PR001", "상품을 찾을 수 없습니다."),
+  DELETED_PRODUCT(HttpStatus.BAD_REQUEST.value(), "PR002", "이미 삭제된 상품입니다."),
 
   // Payment Error Code (결제 관련 오류)
   ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "주문이 존재하지 않습니다.");
