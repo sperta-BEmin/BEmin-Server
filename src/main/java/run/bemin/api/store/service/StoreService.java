@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.category.entity.Category;
 import run.bemin.api.category.exception.CategoryAlreadyExistsByNameException;
+import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.store.dto.StoreDto;
 import run.bemin.api.store.dto.request.CreateStoreRequestDto;
 import run.bemin.api.store.entity.Store;
@@ -21,12 +22,13 @@ public class StoreService {
   }
 
   @Transactional
-  public StoreDto createStore(CreateStoreRequestDto requestDto) {
+  public StoreDto createStore(CreateStoreRequestDto requestDto, UserDetailsImpl userDetails) {
     Store store = Store.create(
         requestDto.name(),
         requestDto.phone(),
         requestDto.minimumPrice(),
-        requestDto.userEmail());
+        requestDto.userEmail(),
+        userDetails.getUsername());
 
     Store savedStore = storeRepository.save(store);
     return StoreDto.fromEntity(savedStore);
