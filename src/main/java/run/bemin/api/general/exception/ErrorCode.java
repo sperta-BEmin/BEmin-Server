@@ -60,8 +60,8 @@ public enum ErrorCode {
   STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다."),
 
   // Product (상품 관련 오류)
-  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND.value(),"P001","상품을 찾을 수 없습니다."),
-  DELETED_PRODUCT(HttpStatus.BAD_REQUEST.value(),"P002","이미 삭제된 상품입니다.");
+  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND.value(),"PR001","상품을 찾을 수 없습니다."),
+  DELETED_PRODUCT(HttpStatus.BAD_REQUEST.value(),"PR002","이미 삭제된 상품입니다.");
 
   private final int status;
   private final String code;
