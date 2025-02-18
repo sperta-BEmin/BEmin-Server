@@ -1,12 +1,13 @@
 package run.bemin.api.general.auditing;
 
 import java.util.Optional;
+import jdk.jshell.spi.ExecutionControl.UserException;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import run.bemin.api.auth.exception.AuthAccessDeniedException;
 import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.security.UserDetailsImpl;
-import run.bemin.api.user.exception.UserException;
 
 public class AuditorAwareImpl implements AuditorAware<String> {
 
@@ -20,7 +21,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
   private void validateAuthentication(Authentication authentication) throws UserException {
     if (authentication == null || !authentication.isAuthenticated()) {
-      throw new UserException(ErrorCode.INVALID_ACCESS);
+      throw new AuthAccessDeniedException(ErrorCode.AUTH_ACCESS_DENIED.getMessage());
     }
   }
 }

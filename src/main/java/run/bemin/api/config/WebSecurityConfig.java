@@ -1,6 +1,7 @@
 package run.bemin.api.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,9 +17,10 @@ import run.bemin.api.auth.jwt.JwtUtil;
 import run.bemin.api.security.JwtAuthorizationFilter;
 import run.bemin.api.security.UserDetailsServiceImpl;
 
-
+@Slf4j
 @Configuration
 @EnableWebSecurity // Spring Security 지원을 가능하게 함
+//@EnableGlobalMethodSecurity(prePostEnabled = true) // @PreAuthorize를 통한 API 접근 제어 활성화 (개발/테스트용)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
