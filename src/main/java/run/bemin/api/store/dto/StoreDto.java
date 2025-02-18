@@ -11,6 +11,7 @@ public record StoreDto(
     Integer minimumPrice,
     Float rating,
     Boolean isDeleted,
+    String userEmail,
     String createdBy,
     String updatedBy,
     String deletedBy,
@@ -30,6 +31,7 @@ public record StoreDto(
         store.getCreatedBy(),
         store.getUpdatedBy(),
         store.getDeletedBy(),
+        store.getUserEmail(),
         store.getCreatedAt(),
         store.getUpdatedAt(),
         store.getDeletedAt()
