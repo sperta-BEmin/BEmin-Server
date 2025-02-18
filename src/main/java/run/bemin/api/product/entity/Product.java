@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 import run.bemin.api.general.auditing.AuditableEntity;
-import run.bemin.api.user.entity.User;
+import run.bemin.api.store.entity.Store;
 
 @Entity
 @Getter
@@ -46,10 +46,10 @@ public class Product extends AuditableEntity {
   private boolean isHidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  @JoinColumn(name = "store_id", nullable = false)
+  private Store store;
 
-  @Column(name = "activated", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+  @Column(name = "activated", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
   private boolean activated;
 
   @Column(name = "deleted_at")
@@ -60,15 +60,37 @@ public class Product extends AuditableEntity {
 
   @Builder
   private Product(
-      User user,
+      Store store,
       String imageUrl,
       String comment,
       String title,
       int price) {
-    this.user = user;
+    this.store = store;
     this.imageUrl = imageUrl;
     this.comment = comment;
     this.title = title;
     this.price = price;
+  }
+
+  public void updatePrice(int price) {
+    this.price = price;
+  }
+
+  public void updateTitle(String title) {
+    this.title = title;
+  }
+
+  public void updateImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
+  }
+
+  public void updateIsHidden(boolean state) {
+    this.isHidden = state;
+  }
+
+  public void deleteProduct(String deletedBy, LocalDateTime time) {
+    this.activated = false;
+    this.deletedBy = deletedBy;
+    this.deletedAt = time;
   }
 }
