@@ -10,6 +10,7 @@ import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.user.dto.UserResponseDto;
 import run.bemin.api.user.entity.User;
 import run.bemin.api.user.exception.UserListNotFoundException;
+import run.bemin.api.user.exception.UserNotFoundException;
 import run.bemin.api.user.exception.UserPageIndexInvalidException;
 import run.bemin.api.user.exception.UserPageSizeInvalidException;
 import run.bemin.api.user.exception.UserRetrievalFailedException;
@@ -53,5 +54,22 @@ public class UserService {
         user.getAddress(),
         user.getRole()
     ));
+  }
+
+  /**
+   * 특정 회원 조회
+   */
+  @Transactional(readOnly = true)
+  public UserResponseDto getUserByUserEmail(String userEmail) {
+    return userRepository.findByUserEmail(userEmail)
+        .map(user -> new UserResponseDto(
+            user.getUserEmail(),
+            user.getName(),
+            user.getNickname(),
+            user.getPhone(),
+            user.getAddress(),
+            user.getRole()
+        ))
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
   }
 }
