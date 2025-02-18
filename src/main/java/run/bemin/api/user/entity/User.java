@@ -1,6 +1,11 @@
 package run.bemin.api.user.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,5 +66,25 @@ public class User {
 //  @Column(length = 100)
 //  private String deletedBy;
 
+
+  public void updateUserInfo(
+      String password,
+      String nickname,
+      String phone,
+      String address
+  ) {
+    if (password != null && !password.trim().isEmpty()) {
+      this.password = password;
+    }
+    if (nickname != null && !nickname.trim().isEmpty()) {
+      this.nickname = nickname;
+    }
+    if (phone != null && !phone.trim().isEmpty()) {
+      this.phone = phone;
+    }
+    if (address != null && !address.trim().isEmpty()) {
+      this.address = address;
+    }
+  }
 
 }
