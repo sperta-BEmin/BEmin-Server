@@ -37,8 +37,7 @@ public class JwtUtil {
   private final long REFRESHTOKEN_TIME = 3 * 60 * 1000L;
 
   @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
-  public
-  String secretKey;
+  public String secretKey; // JwtUtilTokenTest로 인해 public으로 변경했습니다.
   private Key key;
   private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
