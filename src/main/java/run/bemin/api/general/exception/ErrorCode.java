@@ -26,14 +26,30 @@ public enum ErrorCode {
   BIND_ERROR(HttpStatus.BAD_REQUEST.value(), "C010", "바인딩 에러가 발생했습니다. 파라미터를 확인해주세요."),
   ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST.value(), "C011", "illegalArgument error"),
   NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C012", "페이지를 찾을 수 없습니다."),
+  INVALID_ACCESS(HttpStatus.UNAUTHORIZED.value(), "C013", "권한이 존재하지 않습니다."),
+
+  // 인증/인가 관련 오류
+  AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "A001", "접근이 거부되었습니다."),
+
 
   // Signup (회원가입 관련 오류)
-  DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
-  DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S002", "이미 존재하는 닉네임입니다."),
-  INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST.value(), "S003", "이메일 형식이 올바르지 않습니다."),
-  EMAIL_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S004", "이메일을 입력해주세요."),
-  INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST.value(), "S005", "닉네임 형식이 올바르지 않습니다."),
-  NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S006", "닉네임을 입력해주세요."),
+  SIGNUP_DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
+  SIGNUP_INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST.value(), "S002", "이메일 형식이 올바르지 않습니다."),
+  SIGNUP_EMAIL_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S003", "이메일을 입력해주세요."),
+  SIGNUP_DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S004", "이미 존재하는 닉네임입니다."),
+  SIGNUP_INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST.value(), "S005", "닉네임 형식이 올바르지 않습니다."),
+  SIGNUP_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S006", "닉네임을 입력해주세요."),
+
+
+  // Signin (로그인 관련 오류)
+  SIGNIN_UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED.value(), "L001", "인증되지 않은 사용자입니다."),
+  SIGNIN_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED.value(), "L002", "아이디 또는 비밀번호가 올바르지 않습니다."),
+
+  // User (유저 관련 오류)
+  USER_PAGE_INDEX_INVALID(HttpStatus.BAD_REQUEST.value(), "U001", "페이지 인덱스는 0보다 작을 수 없습니다."),
+  USER_LIST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U002", "조회된 사용자가 없습니다."),
+  USER_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "U003", "사용자 목록 조회에 실패했습니다."),
+  USER_PAGE_SIZE_INVALID(HttpStatus.BAD_REQUEST.value(), "U004", "페이지 크기는 0보다 커야 합니다."),
 
   // Category (카테고리 관련 오류)
   CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CC001", "해당 카테고리를 찾을 수 없습니다."),
@@ -44,7 +60,22 @@ public enum ErrorCode {
   CATEGORY_IS_ACTIVE_INVALID(HttpStatus.BAD_REQUEST.value(), "CC006", "카테고리 활성화 여부가 유효하지 않습니다."),
   CATEGORY_PARENT_INVALID(HttpStatus.BAD_REQUEST.value(), "CC007", "부모 카테고리 ID가 유효하지 않습니다."),
   CATEGORY_DISABLED(HttpStatus.FORBIDDEN.value(), "CC009", "비활성화된 카테리입니다."),
-  CATEGORY_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "CC010", "카테고리에 대한 권한이 없습니다.");
+  CATEGORY_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "CC010", "카테고리에 대한 권한이 없습니다."),
+
+  // Store (가게 관련 오류)
+  STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "ST001", "해당 가게를 찾을 수 없습니다."),
+  STORE_ALREADY_EXISTS(HttpStatus.CONFLICT.value(), "ST002", "이미 존재하는 가게입니다."),
+  STORE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ST003", "가게 정보 업데이트에 실패했습니다."),
+  STORE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ST004", "가게 삭제에 실패했습니다."),
+  STORE_NAME_INVALID(HttpStatus.BAD_REQUEST.value(), "ST005", "가게 이름이 유효하지 않습니다."),
+  STORE_PHONE_INVALID(HttpStatus.BAD_REQUEST.value(), "ST006", "가게 전화번호가 유효하지 않습니다."),
+  STORE_MINIMUM_PRICE_INVALID(HttpStatus.BAD_REQUEST.value(), "ST007", "최소 주문 금액이 유효하지 않습니다."),
+  STORE_RATING_INVALID(HttpStatus.BAD_REQUEST.value(), "ST008", "가게 평점이 유효하지 않습니다."),
+  STORE_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "ST009", "가게에 대한 권한이 없습니다."),
+  STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다."),
+
+  // Payment Error Code (결제 관련 오류)
+  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "주문이 존재하지 않습니다.");
 
   private final int status;
   private final String code;
