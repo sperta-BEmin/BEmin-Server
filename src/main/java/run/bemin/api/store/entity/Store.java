@@ -25,7 +25,7 @@ public class Store {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(name = "category_id", nullable = false, updatable = false, unique = true)
+  @Column(name = "store_id", nullable = false, updatable = false, unique = true)
   private UUID id;
 
   @Column(name = "name", nullable = false)
@@ -50,6 +50,12 @@ public class Store {
   @Column(name = "is_deleted")
   private Boolean isDeleted;
 
+  @Column(name = "deleted_at", nullable = true)
+  private LocalDateTime deletedAt;
+
+  @Column(name = "user_email", nullable = false)
+  private String userEmail;
+
   @Column(name = "created_by", updatable = false)
   private String createdBy;
 
@@ -65,19 +71,17 @@ public class Store {
   @Column(name = "updated_at", nullable = true)
   private LocalDateTime updatedAt;
 
-  @Column(name = "deleted_at", nullable = true)
-  private LocalDateTime deletedAt;
-
-  private Store(String name, String phone, Integer minimumPrice, String createdBy) {
+  private Store(String name, String phone, Integer minimumPrice, String createdBy, String userEmail) {
     this.name = name;
     this.phone = phone;
     this.minimumPrice = minimumPrice;
     this.isDeleted = false;
     this.createdBy = createdBy;
+    this.userEmail = userEmail;
     this.createdAt = LocalDateTime.now();
   }
 
-  public static Store create(String name, String phone, Integer minimumPrice, String createdBy) {
-    return new Store(name, phone, minimumPrice, createdBy);
+  public static Store create(String name, String phone, Integer minimumPrice, String createdBy, String userEmail) {
+    return new Store(name, phone, minimumPrice, createdBy, userEmail);
   }
 }
