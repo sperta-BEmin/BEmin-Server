@@ -8,4 +8,5 @@ import lombok.Getter;
 public class SigninResponseDto {
   private String token;
   private String email;
+  private String nickname;
 }
