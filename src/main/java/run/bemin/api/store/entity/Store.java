@@ -62,7 +62,7 @@ public class Store extends AuditableEntity {
 
   @Column(name = "is_deleted", nullable = false)
   @ColumnDefault("false")
-  private boolean isDeleted = false;
+  private Boolean isDeleted = false;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
@@ -123,6 +123,13 @@ public class Store extends AuditableEntity {
     this.isActive = isActive;
     this.userEmail = userEmail;
   }
+
+  public void softDelete(String deletedBy) {
+    this.isDeleted = true;
+    this.deletedAt = LocalDateTime.now();
+    this.deletedBy = deletedBy;
+  }
+
 
   public void updateCategories(List<Category> newCategories, String currentUser) {
     // 새 목록을 빠르게 확인하기 위한 Map 생성 (Category ID -> Category)
