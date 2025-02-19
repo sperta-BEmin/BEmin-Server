@@ -24,7 +24,7 @@ import run.bemin.api.user.repository.UserRepository;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class CategoryService { // TODO: 회원 등록 유무/권한 체크 기능 구현이 필요하다.
+public class CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
@@ -77,13 +77,13 @@ public class CategoryService { // TODO: 회원 등록 유무/권한 체크 기�
   }
 
   @Transactional
-  public CategoryDto updatedCategory(UpdateCategoryRequestDto requestDto) {
+  public CategoryDto updatedCategory(UpdateCategoryRequestDto requestDto, UserDetailsImpl userDetails) {
     existsCategoryByName(requestDto.name());
 
     Category category = categoryRepository.findById(requestDto.categoryId())
         .orElseThrow(() -> new CategoryNotFoundException(requestDto.categoryId().toString()));
 
-    category.update(requestDto.userEmail(), requestDto.name(), requestDto.isDeleted());
+    category.update(userDetails.getUsername(), requestDto.name(), requestDto.isDeleted());
     Category savedCategory = categoryRepository.save(category);
 
     return CategoryDto.fromEntity(savedCategory);
@@ -91,11 +91,11 @@ public class CategoryService { // TODO: 회원 등록 유무/권한 체크 기�
 
 
   @Transactional
-  public CategoryDto softDeleteCategory(SoftDeleteCategoryRequestDto requestDto) {
+  public CategoryDto softDeleteCategory(SoftDeleteCategoryRequestDto requestDto, UserDetailsImpl userDetails) {
     Category category = categoryRepository.findById(requestDto.categoryId())
         .orElseThrow(() -> new CategoryNotFoundException(requestDto.categoryId().toString()));
 
-    category.softDelete(requestDto.userEmail());
+    category.softDelete(userDetails.getUsername());
     Category softDeletedCategory = categoryRepository.save(category);
 
     return CategoryDto.fromEntity(softDeletedCategory);
