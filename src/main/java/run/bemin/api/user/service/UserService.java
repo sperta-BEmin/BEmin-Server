@@ -136,4 +136,16 @@ public class UserService {
     user.updateUserInfo(encodePassword, nickname, phone, address);
     return new UserResponseDto(user);
   }
+
+  /**
+   * 회원 탈퇴
+   */
+  @Transactional
+  public void deleteUser(String userEmail, String deletedBy) {
+    User user = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+
+    user.delete(deletedBy);
+  }
+
 }

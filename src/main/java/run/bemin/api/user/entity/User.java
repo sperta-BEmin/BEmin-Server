@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,28 +45,11 @@ public class User extends AuditableEntity {
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role;
 
-//  @Column(nullable = false, updatable = false)
-//  @CreatedDate
-//  private LocalDateTime createdAt;
-//
-//  @Column(nullable = false, length = 100, updatable = false)
-//  @CreatedBy
-//  private String createdBy;
-//
-//  @Column(nullable = false, updatable = false)
-//  @LastModifiedDate
-//  private LocalDateTime updatedAt;
-//
-//  @Column(nullable = false, length =  100)
-//  @LastModifiedBy
-//  private String updatedBy;
-//
-//  @Column
-//  private LocalDateTime deletedAt;
-//
-//  @Column(length = 100)
-//  private String deletedBy;
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
+  @Column(name = "deleted_by")
+  private String deletedBy;
 
   public void updateUserInfo(
       String password,
@@ -85,6 +69,11 @@ public class User extends AuditableEntity {
     if (address != null && !address.trim().isEmpty()) {
       this.address = address;
     }
+  }
+
+  public void delete(String deletedBy) {
+    this.deletedAt = LocalDateTime.now();
+    this.deletedBy = deletedBy;
   }
 
 }
