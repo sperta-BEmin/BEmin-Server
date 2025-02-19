@@ -1,7 +1,7 @@
 package run.bemin.api.product.service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import run.bemin.api.product.dto.ProductRequestDto;
+import run.bemin.api.comment.repository.CommentRepository;
 import run.bemin.api.product.dto.ProductSearchDto;
 import run.bemin.api.product.dto.UpdateProductDetailDto;
 import run.bemin.api.product.entity.Product;
@@ -27,6 +27,7 @@ public class ProductService {
   private final ProductValidator validator;
   private final ProductRepository productRepository;
   private final StoreRepository storeRepository;
+  private final CommentRepository commentRepository;
 
   @Transactional
   public void createProduct(Store store, int price, String title, String comment, String imageUrl) {
@@ -46,8 +47,8 @@ public class ProductService {
   }
 
   @Transactional
-  public void updateProductDetails(String product_id, UpdateProductDetailDto requestDto) {
-    Product product = productRepository.findById(UUID.fromString(product_id))
+  public void updateProductDetails(String productId, UpdateProductDetailDto requestDto) {
+    Product product = productRepository.findById(UUID.fromString(productId))
         .orElseThrow(ProductNotFoundException::new);
 
     requestDto.getPrice().ifPresent(product::updatePrice);
@@ -57,11 +58,23 @@ public class ProductService {
   }
 
   @Transactional
-  public void deleteProduct(String product_id, LocalDateTime time) {
-    Product product = productRepository.findById(UUID.fromString(product_id))
+  public void deleteProduct(String productId, LocalDateTime time) {
+    Product product = productRepository.findById(UUID.fromString(productId))
         .orElseThrow(ProductNotFoundException::new);
     String deletedBy = validator.isDeletedProduct(product);
     product.deleteProduct(deletedBy, time);
   }
+
+  @Transactional
+  public void updateComment(String productId,String content){
+    Product product = productRepository.findById(UUID.fromString(productId))
+        .orElseThrow(ProductNotFoundException::new);
+    product.updateComment(content);
+  }
+
+  public List<String> getRecentProductComment(String productId) {
+    return commentRepository.getRecentComments(UUID.fromString(productId));
+  }
+
 
 }

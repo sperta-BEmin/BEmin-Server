@@ -88,6 +88,8 @@ public class Product extends AuditableEntity {
     this.isHidden = state;
   }
 
+  public void updateComment(String comment) { this.comment = comment; }
+
   public void deleteProduct(String deletedBy, LocalDateTime time) {
     this.activated = false;
     this.deletedBy = deletedBy;
