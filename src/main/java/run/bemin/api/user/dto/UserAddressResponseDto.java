@@ -5,7 +5,7 @@ import lombok.Getter;
 import run.bemin.api.user.entity.UserAddress;
 
 @Getter
-public class AddressResponseDto {
+public class UserAddressResponseDto {
   private UUID userAddressId;
   private String zoneCode;
   private String bcode;
@@ -14,7 +14,7 @@ public class AddressResponseDto {
   private String detail;
   private boolean isRepresentative;
 
-  public AddressResponseDto(UserAddress address) {
+  public UserAddressResponseDto(UserAddress address) {
     this.userAddressId = address.getId();
     this.zoneCode = address.getZoneCode();
     this.bcode = address.getBcode();

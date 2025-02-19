@@ -53,6 +53,7 @@ public enum ErrorCode {
   USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U005", "해당 이메일의 사용자를 찾을 수 없습니다."),
   USER_DUPLICATE_NICKNAME(HttpStatus.CONFLICT.value(), "U006", "닉네임이 이미 존재합니다."),
   USER_NO_FIELD_UPDATED(HttpStatus.BAD_REQUEST.value(), "U007", "아무것도 변경하지 않았습니다."),
+  USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "U008", "인증된 사용자와 요청한 이메일이 일치하지 않습니다."),
 
   // Category (카테고리 관련 오류)
   CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CC001", "해당 카테고리를 찾을 수 없습니다."),

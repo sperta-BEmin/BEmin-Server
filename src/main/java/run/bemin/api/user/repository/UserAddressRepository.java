@@ -8,4 +8,7 @@ import run.bemin.api.user.entity.UserAddress;
 
 public interface UserAddressRepository extends JpaRepository<UserAddress, UUID> {
   List<UserAddress> findByUser(User user);
+
+  List<UserAddress> findByUserAndIsRepresentativeTrue(User user);
+
 }

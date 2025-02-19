@@ -58,4 +58,9 @@ public class UserAddress {
     this.isRepresentative = isRepresentative;
     this.user = user;
   }
+
+  public void setRepresentative(boolean isRepresentative) {
+    this.isRepresentative = isRepresentative;
+  }
+
 }

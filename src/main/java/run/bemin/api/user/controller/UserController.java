@@ -12,16 +12,22 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.general.response.ApiResponse;
 import run.bemin.api.security.UserDetailsImpl;
+import run.bemin.api.user.dto.UserAddressRequestDto;
+import run.bemin.api.user.dto.UserAddressResponseDto;
 import run.bemin.api.user.dto.UserListResponseDto;
 import run.bemin.api.user.dto.UserResponseDto;
 import run.bemin.api.user.dto.UserUpdateRequestDto;
+import run.bemin.api.user.exception.UserUnauthorizedException;
+import run.bemin.api.user.service.UserAddressService;
 import run.bemin.api.user.service.UserService;
 
 @Slf4j
@@ -31,6 +37,7 @@ import run.bemin.api.user.service.UserService;
 @RequestMapping("/api/users")
 public class UserController {
   private final UserService userService;
+  private final UserAddressService userAddressService;
 
   /**
    * 전체 사용자 조회
@@ -77,5 +84,28 @@ public class UserController {
     return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", userEmail));
   }
 
+  /**
+   * 배달 주소 추가
+   */
+  @PostMapping("/{userEmail}/addresses")
+  @PreAuthorize("hasAnyRole('CUSTOMER')")
+  public ResponseEntity<ApiResponse<UserAddressResponseDto>> addAddress(
+      @PathVariable("userEmail") String userEmail,
+      @RequestBody @Valid UserAddressRequestDto addressRequestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    // 인증된 사용자와 요청한 이메일이 일치하는지 검증
+    validateAuthenticatedUser(userEmail, userDetails);
+
+    UserAddressResponseDto addedAddress = userAddressService.addAddress(userEmail, addressRequestDto);
+
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "배달 주소 추가 성공", addedAddress));
+  }
+
+  private void validateAuthenticatedUser(String userEmail, UserDetailsImpl userDetails) {
+    if (!userEmail.equals(userDetails.getUsername())) {
+      throw new UserUnauthorizedException(ErrorCode.USER_UNAUTHORIZED.getMessage());
+    }
+  }
 
 }
