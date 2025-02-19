@@ -1,6 +1,7 @@
 package run.bemin.api.category.repository;
 
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,4 +17,7 @@ public interface CategoryRepository extends CrudRepository<Category, UUID> {
   Page<Category> findAllByIsDeleted(Boolean isDeleted, Pageable pageable);
 
   Page<Category> findAllByIsDeletedAndNameContainingIgnoreCase(Boolean isDeleted, String name, Pageable pageable);
+
+  List<Category> findAllByIdIn(List<UUID> ids);
+
 }

@@ -15,13 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import run.bemin.api.category.entity.Category;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_store")
-public class Store {
+public class Store extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,57 +35,99 @@ public class Store {
   @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "phone", nullable = true)
+  @Column(name = "phone")
   private String phone;
 
   @Column(name = "minimum_price")
   private Integer minimumPrice;
 
+  @Column(name = "is_active", nullable = false)
+  @ColumnDefault("true")
+  private boolean isActive = true;
+
   @Column(name = "rating")
   private Float rating;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  // Cascade 옵션 추가 (주소와 함께 저장)
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "store_address_id")
   private StoreAddress storeAddress;
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
   private final List<StoreCategory> storeCategories = new ArrayList<>();
 
-  @Column(name = "is_deleted")
-  private Boolean isDeleted;
+  @Column(name = "is_deleted", nullable = false)
+  @ColumnDefault("false")
+  private boolean isDeleted = false;
 
-  @Column(name = "deleted_at", nullable = true)
+  @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
+
+  @Column(name = "deleted_by")
+  private String deletedBy;
 
   @Column(name = "user_email", nullable = false)
   private String userEmail;
 
-  @Column(name = "created_by", updatable = false)
-  private String createdBy;
+//  @Column(name = "created_by", updatable = false)
+//  private String createdBy;
+//
+//  @Column(name = "updated_by")
+//  private String updatedBy;
 
-  @Column(name = "updated_by", nullable = true)
-  private String updatedBy;
+//  @Column(name = "created_at", nullable = false, updatable = false)
+//  private LocalDateTime createdAt;
+//
+//  @Column(name = "updated_at")
+//  private LocalDateTime updatedAt;
 
-  @Column(name = "deleted_by", nullable = true)
-  private String deletedBy;
-
-  @Column(name = "created_at", nullable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at", nullable = true)
-  private LocalDateTime updatedAt;
-
-  private Store(String name, String phone, Integer minimumPrice, String createdBy, String userEmail) {
+  @Builder
+  public Store(
+      String name,
+      String phone,
+      Integer minimumPrice,
+      boolean isActive,
+      StoreAddress storeAddress,
+      String userEmail
+//      String createdBy,
+//      LocalDateTime createdAt
+  ) {
     this.name = name;
     this.phone = phone;
     this.minimumPrice = minimumPrice;
-    this.isDeleted = false;
-    this.createdBy = createdBy;
+    this.isActive = isActive;
+    this.storeAddress = storeAddress;
     this.userEmail = userEmail;
-    this.createdAt = LocalDateTime.now();
+//    this.createdBy = createdBy;
+//    this.createdAt = createdAt;
   }
 
-  public static Store create(String name, String phone, Integer minimumPrice, String createdBy, String userEmail) {
-    return new Store(name, phone, minimumPrice, createdBy, userEmail);
+  public static Store create(
+      String name,
+      String phone,
+      Integer minimumPrice,
+      boolean isActive,
+      StoreAddress storeAddress,
+      String userEmail
+//      String createdBy,
+//      LocalDateTime createdAt
+  ) {
+    return Store.builder()
+        .name(name)
+        .phone(phone)
+        .minimumPrice(minimumPrice)
+        .isActive(isActive)
+        .storeAddress(storeAddress)
+        .userEmail(userEmail)
+//        .createdBy(createdBy)
+//        .createdAt(createdAt)
+        .build();
+  }
+
+  // 카테고리 연결을 위한 헬퍼 메서드 (첫번째 카테고리는 primary 로 설정)
+  public void addCategory(Category category, String createdBy) {
+    boolean isPrimary = this.storeCategories.isEmpty();
+    StoreCategory storeCategory = StoreCategory.create(this, category, isPrimary, createdBy);
+    this.storeCategories.add(storeCategory);
   }
 }
