@@ -13,12 +13,16 @@ import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.validator.constraints.ISBN;
 import run.bemin.api.category.entity.Category;
 import run.bemin.api.general.auditing.AuditableEntity;
 
@@ -69,18 +73,6 @@ public class Store extends AuditableEntity {
   @Column(name = "user_email", nullable = false)
   private String userEmail;
 
-//  @Column(name = "created_by", updatable = false)
-//  private String createdBy;
-//
-//  @Column(name = "updated_by")
-//  private String updatedBy;
-
-//  @Column(name = "created_at", nullable = false, updatable = false)
-//  private LocalDateTime createdAt;
-//
-//  @Column(name = "updated_at")
-//  private LocalDateTime updatedAt;
-
   @Builder
   public Store(
       String name,
@@ -89,8 +81,6 @@ public class Store extends AuditableEntity {
       boolean isActive,
       StoreAddress storeAddress,
       String userEmail
-//      String createdBy,
-//      LocalDateTime createdAt
   ) {
     this.name = name;
     this.phone = phone;
@@ -98,8 +88,6 @@ public class Store extends AuditableEntity {
     this.isActive = isActive;
     this.storeAddress = storeAddress;
     this.userEmail = userEmail;
-//    this.createdBy = createdBy;
-//    this.createdAt = createdAt;
   }
 
   public static Store create(
@@ -109,8 +97,6 @@ public class Store extends AuditableEntity {
       boolean isActive,
       StoreAddress storeAddress,
       String userEmail
-//      String createdBy,
-//      LocalDateTime createdAt
   ) {
     return Store.builder()
         .name(name)
@@ -119,8 +105,6 @@ public class Store extends AuditableEntity {
         .isActive(isActive)
         .storeAddress(storeAddress)
         .userEmail(userEmail)
-//        .createdBy(createdBy)
-//        .createdAt(createdAt)
         .build();
   }
 
@@ -130,4 +114,49 @@ public class Store extends AuditableEntity {
     StoreCategory storeCategory = StoreCategory.create(this, category, isPrimary, createdBy);
     this.storeCategories.add(storeCategory);
   }
+
+  // 업데이트용 메서드 (setter 대신 엔티티 내부에서 처리)
+  public void update(String name, String phone, Integer minimumPrice, Boolean isActive, String userEmail) {
+    this.name = name;
+    this.phone = phone;
+    this.minimumPrice = minimumPrice;
+    this.isActive = isActive;
+    this.userEmail = userEmail;
+  }
+
+  public void updateCategories(List<Category> newCategories, String currentUser) {
+    // 새 목록을 빠르게 확인하기 위한 Map 생성 (Category ID -> Category)
+    Map<UUID, Category> newCategoryMap = newCategories.stream()
+        .collect(Collectors.toMap(Category::getId, category -> category));
+
+    // 1. 기존 연결 중, 새 목록에 없는 항목은 소프트 삭제 처리
+    for (StoreCategory storeCategory : storeCategories) {
+      if (!newCategoryMap.containsKey(storeCategory.getCategory().getId()) && !storeCategory.getIsDeleted()) {
+        storeCategory.softDelete(currentUser);
+      }
+    }
+
+    // 2. 새 목록에 대해, 기존 연결이 있으면 업데이트(또는 복원), 없으면 추가
+    for (int i = 0; i < newCategories.size(); i++) {
+      Category newCategory = newCategories.get(i);
+      boolean isPrimary = (i == 0); // 첫 번째 카테고리를 primary 로 설정
+      Optional<StoreCategory> existingOpt = storeCategories.stream()
+          .filter(sc -> sc.getCategory().getId().equals(newCategory.getId()))
+          .findFirst();
+
+      if (existingOpt.isPresent()) {
+        StoreCategory sc = existingOpt.get();
+        if (sc.getIsDeleted()) {
+          sc.restore(currentUser, isPrimary);  // 소프트 삭제된 항목이면 복원
+        } else {
+          sc.update(currentUser, isPrimary); // 이미 활성화된 항목이면 primary 플래그만 업데이트
+        }
+      } else {
+        // 신규 연결 생성 및 추가
+        StoreCategory newSC = StoreCategory.create(this, newCategory, isPrimary, currentUser);
+        storeCategories.add(newSC);
+      }
+    }
+  }
 }
+ 

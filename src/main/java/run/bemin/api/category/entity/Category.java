@@ -7,8 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +14,13 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
+import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.store.entity.StoreCategory;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_category")
-public class Category {
+public class Category extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,74 +34,32 @@ public class Category {
   private final List<StoreCategory> storeCategories = new ArrayList<>();
 
   @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted;
+  private Boolean isDeleted = false;
 
-  @Column(name = "created_by", updatable = false)
-  private String createdBy;
-
-  @Column(name = "updated_by", nullable = true)
-  private String updatedBy;
-
-  @Column(name = "deleted_by", nullable = true)
+  @Column(name = "deleted_by")
   private String deletedBy;
 
-  @Column(name = "created_at", nullable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at", nullable = true)
-  private LocalDateTime updatedAt;
-
-  @Column(name = "deleted_at", nullable = true)
+  @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
-  private Category(String name, Boolean isDeleted, String createdBy, String updatedBy, String deletedBy,
-                   LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+  private Category(String name) {
     this.name = name;
-    this.isDeleted = isDeleted;
-    this.createdBy = createdBy;
-    this.updatedBy = updatedBy;
-    this.deletedBy = deletedBy;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
   }
 
   public static Category create(String name, String createdBy) {
-    return new Category(
-        name,
-        false,
-        createdBy,
-        null,
-        null,
-        LocalDateTime.now(),
-        null,
-        null);
+    return new Category(name);
   }
 
   public void update(String updatedBy, String name, Boolean isDeleted) {
-    this.updatedBy = updatedBy;
     this.name = name;
-    this.isDeleted = isDeleted != null ? isDeleted : this.isDeleted;
-    this.updatedAt = LocalDateTime.now();
+    if (isDeleted != null) {
+      this.isDeleted = isDeleted;
+    }
   }
 
   public void softDelete(String deletedBy) {
-    this.deletedBy = deletedBy;
     this.isDeleted = true;
+    this.deletedBy = deletedBy;
     this.deletedAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
-    this.updatedBy = deletedBy;
   }
-
-  @PrePersist
-  protected void onCreate() {
-    this.createdAt = LocalDateTime.now();
-  }
-
-  @PreUpdate
-  protected void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
-  }
-
-
 }

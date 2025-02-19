@@ -34,7 +34,6 @@ public class AdminCategoryController {
   private final CategoryService categoryService;
 
   @PreAuthorize("hasAnyRole(" +
-      "T(run.bemin.api.user.entity.UserRoleEnum).OWNER.getAuthority(), " +
       "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
       "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
   @PostMapping
@@ -74,9 +73,8 @@ public class AdminCategoryController {
         ApiResponse.from(CATEGORIES_FETCHED.getStatus(), CATEGORIES_FETCHED.getMessage(), categories));
   }
 
+
   @PreAuthorize("hasAnyRole(" +
-      "T(run.bemin.api.user.entity.UserRoleEnum).CUSTOMER.getAuthority(), " +
-      "T(run.bemin.api.user.entity.UserRoleEnum).OWNER.getAuthority(), " +
       "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
       "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
   @PatchMapping
