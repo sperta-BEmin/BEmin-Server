@@ -25,11 +25,11 @@ public class AuditableEntity {
   private String createdBy;
 
   @LastModifiedDate
-  @Column(updatable = false, name = "update_at")
+  @Column(updatable = false, name = "updated_at")
   private LocalDateTime updatedAt;
 
   @LastModifiedBy
-  @Column(updatable = false, name = "update_by")
-  private String updateBy;
+  @Column(updatable = false, name = "updated_by")
+  private String updatedBy;
 
 }
