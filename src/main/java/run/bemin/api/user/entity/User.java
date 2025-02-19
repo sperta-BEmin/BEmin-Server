@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 @Entity
 @Table(name = "p_user")
@@ -19,8 +20,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @NoArgsConstructor
 @Builder
 @DynamicUpdate
-
-public class User {
+public class User extends AuditableEntity {
   @Id
   @Column(nullable = false, unique = true)
   private String userEmail;
