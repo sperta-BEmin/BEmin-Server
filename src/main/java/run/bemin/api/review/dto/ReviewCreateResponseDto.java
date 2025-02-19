@@ -1,18 +1,21 @@
 package run.bemin.api.review.dto;
 
-import java.util.UUID;
+import lombok.Builder;
 import lombok.Getter;
 import run.bemin.api.review.entity.Review;
 
 @Getter
+@Builder
 public class ReviewCreateResponseDto {
-  private final UUID orderId;
-  private final int reviewRating;
+  private String orderId;
+  private int reviewRating;
   private String description;
 
-  public ReviewCreateResponseDto(Review review) {
-    this.orderId = review.getOrder().getOrderId();
-    this.reviewRating = review.getReviewRating().getValue();
-    this.description = review.getDescription();
+  public static ReviewCreateResponseDto from(Review review) {
+    return ReviewCreateResponseDto.builder()
+        .orderId(String.valueOf(review.getOrder().getOrderId()))
+        .reviewRating(review.getReviewRating().getValue())
+        .description(review.getDescription())
+        .build();
   }
 }

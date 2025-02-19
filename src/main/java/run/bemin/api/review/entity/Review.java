@@ -18,8 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.review.domain.ReviewRating;
@@ -51,18 +49,11 @@ public class Review extends AuditableEntity {
   @Column(columnDefinition = "text")
   private String description;
 
-  @CreationTimestamp
-  @Column(updatable = false)
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  private LocalDateTime updatedAt;
-
   private UUID deletedBy;
   private LocalDateTime deletedAt;
 
   // 리뷰 수정하기
-  public void updateReview(ReviewRating reviewRating, String description) {
+  public void updateReview(Order order, User user, ReviewRating reviewRating, String description) {
     this.reviewRating = reviewRating;
     this.description = description;
   }

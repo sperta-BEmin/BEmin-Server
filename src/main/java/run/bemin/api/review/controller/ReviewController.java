@@ -1,6 +1,6 @@
 package run.bemin.api.review.controller;
 
-import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +19,14 @@ public class ReviewController {
 
   // 리뷰 생성하기
   @PostMapping("/reviews")
-  public ResponseEntity<ReviewCreateResponseDto> createReview(@Valid @RequestBody ReviewCreateRequestDto requestDto) {
-    ReviewCreateResponseDto responseDto = reviewService.createReview(requestDto);
+  public ResponseEntity<ReviewCreateResponseDto> createReview(
+      HttpServletRequest request,
+      @RequestBody ReviewCreateRequestDto requestDto) {
+
+    String authToken = request.getHeader("Authorization");
+
+    ReviewCreateResponseDto responseDto = reviewService.createReview(authToken, requestDto);
+
     return ResponseEntity.ok(responseDto);
   }
 }
