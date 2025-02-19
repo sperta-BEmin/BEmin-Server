@@ -1,6 +1,7 @@
 package run.bemin.api.user.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -85,6 +86,24 @@ public class UserController {
   }
 
   /**
+   * 특정 사용자 주소 전체 조회
+   */
+  @GetMapping("/{userEmail}/addresses")
+  @PreAuthorize("hasAnyRole('CUSTOMER')")
+  public ResponseEntity<ApiResponse<List<UserAddressResponseDto>>> getAddresses(
+      @PathVariable("userEmail") String userEmail,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    // 인증된 사용자와 요청한 이메일이 일치하는지 검증
+    validateAuthenticatedUser(userEmail, userDetails);
+
+    // 특정 회원의 주소 목록 조회
+    List<UserAddressResponseDto> addresses = userAddressService.getAddresses(userEmail);
+
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "주소 목록 조회 성공", addresses));
+  }
+
+  /**
    * 배달 주소 추가
    */
   @PostMapping("/{userEmail}/addresses")
@@ -101,6 +120,7 @@ public class UserController {
 
     return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "배달 주소 추가 성공", addedAddress));
   }
+
 
   private void validateAuthenticatedUser(String userEmail, UserDetailsImpl userDetails) {
     if (!userEmail.equals(userDetails.getUsername())) {

@@ -1,8 +1,10 @@
 package run.bemin.api.user.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.user.dto.UserAddressRequestDto;
 import run.bemin.api.user.dto.UserAddressResponseDto;
@@ -22,6 +24,7 @@ public class UserAddressService {
   /**
    * 특정 회원의 배달 주소 추가 - 무조건 대표 주소로 등록
    */
+  @Transactional
   public UserAddressResponseDto addAddress(String userEmail, UserAddressRequestDto addressRequestDto) {
     User user = userRepository.findByUserEmail(userEmail)
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
@@ -45,10 +48,24 @@ public class UserAddressService {
         .build();
 
     UserAddress savedAddress = userAddressRepository.save(userAddress);
-    
+
     user.setRepresentativeAddress(savedAddress);
     userRepository.save(user);
 
     return new UserAddressResponseDto(savedAddress);
+  }
+
+  /**
+   * 특정 회원의 주소 목록 조회
+   */
+  @Transactional(readOnly = true)
+  public List<UserAddressResponseDto> getAddresses(String userEmail) {
+    User user = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+
+    return userAddressRepository.findByUser(user)
+        .stream()
+        .map(UserAddressResponseDto::new)
+        .collect(Collectors.toList());
   }
 }
