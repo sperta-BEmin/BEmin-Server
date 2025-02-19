@@ -1,5 +1,6 @@
 package run.bemin.api.order.entity;
 
+import java.util.UUID;
 import run.bemin.api.order.dto.request.UpdateOrderRequest;
 import run.bemin.api.order.exception.OrderNullException;
 import run.bemin.api.order.exception.OrderStatusException;
@@ -16,7 +17,7 @@ public class OrderDomainService {
   /**
    * 주문 생성 로직
    */
-  public Order createOrder(User user, String storeId, OrderType orderType, String storeName, OrderAddress address) {
+  public Order createOrder(User user, UUID storeId, OrderType orderType, String storeName, OrderAddress address) {
     validateOrderCreation(user, storeId, orderType, address);
 
     return Order.builder()
@@ -60,7 +61,7 @@ public class OrderDomainService {
   /**
    * 주문 생성 검증 로직
    */
-  private void validateOrderCreation(User user, String storeId, OrderType orderType, OrderAddress address) {
+  private void validateOrderCreation(User user, UUID storeId, OrderType orderType, OrderAddress address) {
     if (user == null || storeId == null || orderType == null) {
       throw new OrderNullException("createOrder parameters missing!!");
     }

@@ -31,7 +31,6 @@ public enum OrderStatus {
         return status;
       }
     }
-    // 추후 globalException 코드 추가
     throw new OrderStatusException("Invalid OrderStatus code!! : " + code);
   }
 

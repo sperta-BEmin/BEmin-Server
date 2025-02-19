@@ -1,6 +1,7 @@
 package run.bemin.api.order.dto;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,7 +9,7 @@ import lombok.Getter;
 @Builder
 public class ProductDetailDTO {
   @NotNull
-  private String productId;
+  private UUID productId;
 
   @NotNull
   private String productName;
@@ -18,6 +19,4 @@ public class ProductDetailDTO {
 
   @NotNull
   private Integer price;
-
-  private Integer totalPrice;
 }

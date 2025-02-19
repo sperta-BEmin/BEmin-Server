@@ -22,6 +22,7 @@ import run.bemin.api.order.entity.OrderType;
 import run.bemin.api.order.exception.OrderNotFoundException;
 import run.bemin.api.order.repo.OrderDetailRepository;
 import run.bemin.api.order.repo.OrderRepository;
+import run.bemin.api.user.entity.User;
 
 @Service
 @RequiredArgsConstructor
@@ -35,16 +36,19 @@ public class OrderService {
    * 주문 생성
    */
   @Transactional
-  public Order createOrder(CreateOrderRequest req) {
+  public Order createOrder(CreateOrderRequest req, User user) {
     // 1. OrderAddress 생성
     OrderAddress orderAddress = req.getAddress();
 
     // 2. OrderType 매핑
     OrderType orderType = OrderType.fromCode(req.getOrderType());
 
+    System.out.println(orderType.getCode());
+    System.out.println(orderType.getDescription());
+
     // 3. 도메인 서비스로 검증 및 주문 객체 생성
     Order order = orderDomainService.createOrder(
-        null, //User는 추후 JWT에서 가져오거나 수정이 필요하다.
+        user, //User는 추후 JWT에서 가져오거나 수정이 필요하다.
         req.getStoreId(),
         orderType,
         req.getStoreName(),

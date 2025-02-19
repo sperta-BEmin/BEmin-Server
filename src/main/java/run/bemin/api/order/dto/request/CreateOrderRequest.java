@@ -3,6 +3,7 @@ package run.bemin.api.order.dto.request;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import run.bemin.api.order.dto.ProductDetailDTO;
@@ -12,7 +13,7 @@ import run.bemin.api.order.entity.OrderAddress;
 @Builder
 public class CreateOrderRequest {
   @NotNull
-  private String storeId; // 상점 ID
+  private UUID storeId; // 상점 ID
 
   @NotNull
   private Integer orderType; // 주문 타입 코드

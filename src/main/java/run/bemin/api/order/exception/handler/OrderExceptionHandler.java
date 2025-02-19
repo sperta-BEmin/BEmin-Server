@@ -4,6 +4,7 @@ import static run.bemin.api.general.exception.ErrorCode.ORDER_INVALID_STATUS_COD
 import static run.bemin.api.general.exception.ErrorCode.ORDER_INVALID_TYPE_CODE;
 import static run.bemin.api.general.exception.ErrorCode.ORDER_NOT_FOUND2;
 import static run.bemin.api.general.exception.ErrorCode.ORDER_NULL_VALUE;
+import static run.bemin.api.general.exception.ErrorCode.ORDER_USER_NOT_FOUND;
 
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import run.bemin.api.order.exception.OrderNotFoundException;
 import run.bemin.api.order.exception.OrderNullException;
 import run.bemin.api.order.exception.OrderStatusException;
 import run.bemin.api.order.exception.OrderTypeException;
+import run.bemin.api.order.exception.OrderUserNotFoundException;
 
 @RestControllerAdvice
 public class OrderExceptionHandler {
@@ -43,5 +45,11 @@ public class OrderExceptionHandler {
   public ResponseEntity<ErrorResponse> OrderNullException(OrderNullException e) {
     return ResponseEntity.status(ORDER_NULL_VALUE.getStatus())
         .body(ErrorResponse.of(ORDER_NULL_VALUE));
+  }
+
+  @ExceptionHandler(OrderUserNotFoundException.class)
+  public ResponseEntity<ErrorResponse> OrderUserNotFoundException(OrderUserNotFoundException e) {
+    return ResponseEntity.status(ORDER_USER_NOT_FOUND.getStatus())
+        .body(ErrorResponse.of(ORDER_USER_NOT_FOUND));
   }
 }

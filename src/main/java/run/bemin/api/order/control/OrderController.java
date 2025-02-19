@@ -1,11 +1,13 @@
 package run.bemin.api.order.control;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import run.bemin.api.general.response.ApiResponse;
 import run.bemin.api.order.dto.OrderResponseCode;
@@ -17,20 +19,36 @@ import run.bemin.api.order.dto.response.ReadOrderResponse;
 import run.bemin.api.order.dto.request.UpdateOrderRequest;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.service.OrderService;
+import run.bemin.api.security.UserDetailsImpl;
+import run.bemin.api.user.entity.User;
+import run.bemin.api.user.service.UserService;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
   private final OrderService orderService;
+  private final UserService userService;
 
   /**
    * 주문 생성
    */
   @PostMapping("/order")
-  public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody @Valid CreateOrderRequest req) {
-    Order createdOrder = orderService.createOrder(req);
+  public ResponseEntity<ApiResponse<Order>> createOrder(
+      HttpServletRequest httpServletRequest,
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @RequestBody @Valid CreateOrderRequest req) {
+
+    String token = httpServletRequest.getHeader("Authorization");
+    System.out.println(token);
+
+    log.info(userDetails.getUsername());
+    log.info(String.valueOf(userDetails.getUser().getRole()));
+    User user = userService.findByUserEmail(userDetails.getUsername());
+    Order createdOrder = orderService.createOrder(req, user);
+
     return ResponseEntity
         .status(OrderResponseCode.ORDER_CREATED.getStatus())
         .body (ApiResponse.from(
