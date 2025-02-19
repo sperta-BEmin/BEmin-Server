@@ -10,6 +10,8 @@ import run.bemin.api.order.repo.OrderRepository;
 import run.bemin.api.review.domain.ReviewRating;
 import run.bemin.api.review.dto.ReviewCreateRequestDto;
 import run.bemin.api.review.dto.ReviewCreateResponseDto;
+import run.bemin.api.review.dto.ReviewUpdateRequestDto;
+import run.bemin.api.review.dto.ReviewUpdateResponseDto;
 import run.bemin.api.review.entity.Review;
 import run.bemin.api.review.repository.ReviewRepository;
 import run.bemin.api.user.entity.User;
@@ -60,16 +62,29 @@ public class ReviewService {
   }
 
   // 리뷰 수정하기
-//  @Transactional
-//  public ReviewUpdateResponseDto updateReview(UUID reviewId, int newRate, String newDescription) {
-//    Review review = reviewRepository.findById(reviewId)
-//        .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
-//
-//    review.updateReview(ReviewRating.fromValue(newRate), newDescription);
-//
-//    Review updatedReview = reviewRepository.save(review);
-//
-//    return new ReviewUpdateResponseDto(updatedReview);
-//  }
+  @Transactional
+  public ReviewUpdateResponseDto updateReview(String authToken, UUID reviewId, ReviewUpdateRequestDto request) {
+    // JWT 토큰에서 사용자 이메일 추출
+    String userEmail = extractToken(authToken);
+
+    // error code 수정하기
+    // 사용자 조회
+    User user = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+    // 리뷰 조회
+    Review review = reviewRepository.findById(reviewId)
+        .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
+
+    // 리뷰 작성자와 현재 로그인한 사용자 비교
+    if (!review.getUser().equals(user)) {
+      throw new IllegalArgumentException("본인이 작성한 리뷰만 수정할 수 있습니다.");
+    }
+
+    // 리뷰 수정
+    review.updateReview(request.getReviewRating(), request.getDescription());
+
+    return ReviewUpdateResponseDto.from(review);
+  }
 
 }

@@ -53,7 +53,7 @@ public class Review extends AuditableEntity {
   private LocalDateTime deletedAt;
 
   // 리뷰 수정하기
-  public void updateReview(Order order, User user, ReviewRating reviewRating, String description) {
+  public void updateReview(ReviewRating reviewRating, String description) {
     this.reviewRating = reviewRating;
     this.description = description;
   }
