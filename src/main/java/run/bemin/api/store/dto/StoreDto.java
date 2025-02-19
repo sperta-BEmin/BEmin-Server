@@ -27,7 +27,7 @@ public record StoreDto(
         store.getPhone(),
         store.getMinimumPrice(),
         store.getRating(),
-        store.isDeleted(),
+        store.getIsDeleted(),
         store.getUserEmail(),
         store.getCreatedBy(),
         store.getUpdatedBy(),
