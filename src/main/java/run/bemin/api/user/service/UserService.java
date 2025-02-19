@@ -1,5 +1,7 @@
 package run.bemin.api.user.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.general.exception.ErrorCode;
+import run.bemin.api.user.dto.AddressResponseDto;
 import run.bemin.api.user.dto.UserResponseDto;
 import run.bemin.api.user.dto.UserUpdateRequestDto;
 import run.bemin.api.user.entity.User;
@@ -18,6 +21,7 @@ import run.bemin.api.user.exception.UserNotFoundException;
 import run.bemin.api.user.exception.UserPageIndexInvalidException;
 import run.bemin.api.user.exception.UserPageSizeInvalidException;
 import run.bemin.api.user.exception.UserRetrievalFailedException;
+import run.bemin.api.user.repository.UserAddressRepository;
 import run.bemin.api.user.repository.UserRepository;
 
 @Service
@@ -26,6 +30,7 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final UserAddressRepository userAddressRepository;
 
   /**
    * 전체 회원 조회
@@ -122,18 +127,12 @@ public class UserService {
       isUpdateRequested = true;
     }
 
-    String address = null;
-    if (requestDto.getAddress() != null && !requestDto.getAddress().trim().isEmpty()) {
-      address = requestDto.getAddress();
-      isUpdateRequested = true;
-    }
-
     // 아무 필드도 업데이트 요청이 없는 경우 예외 발생
     if (!isUpdateRequested) {
       throw new UserNoFieldUpdatedException(ErrorCode.USER_NO_FIELD_UPDATED.getMessage());
     }
 
-    user.updateUserInfo(encodePassword, nickname, phone, address);
+    user.updateUserInfo(encodePassword, nickname, phone);
     return new UserResponseDto(user);
   }
 
@@ -146,6 +145,20 @@ public class UserService {
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
 
     user.delete(deletedBy);
+  }
+
+  /**
+   * 특정 회원의 주소 목록 조회
+   */
+  @Transactional(readOnly = true)
+  public List<AddressResponseDto> getAddresses(String userEmail) {
+    User user = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+
+    return userAddressRepository.findByUser(user)
+        .stream()
+        .map(AddressResponseDto::new)
+        .collect(Collectors.toList());
   }
 
 }

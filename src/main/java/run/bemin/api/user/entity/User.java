@@ -4,7 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -42,9 +45,6 @@ public class User extends AuditableEntity {
   private String phone;
 
   @Column(nullable = false)
-  private String address;
-
-  @Column(nullable = false)
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role;
 
@@ -57,11 +57,15 @@ public class User extends AuditableEntity {
   @OneToMany(mappedBy = "user")
   private List<UserAddress> addresses = new ArrayList<>();
 
+  // 대표 주소를 외래 키로 참조 (p_user 테이블에 representative_address_id 컬럼 생성)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "representative_address_id")
+  private UserAddress representativeAddress;
+
   public void updateUserInfo(
       String password,
       String nickname,
-      String phone,
-      String address
+      String phone
   ) {
     if (password != null && !password.trim().isEmpty()) {
       this.password = password;
@@ -72,14 +76,21 @@ public class User extends AuditableEntity {
     if (phone != null && !phone.trim().isEmpty()) {
       this.phone = phone;
     }
-    if (address != null && !address.trim().isEmpty()) {
-      this.address = address;
-    }
   }
 
   public void delete(String deletedBy) {
     this.deletedAt = LocalDateTime.now();
     this.deletedBy = deletedBy;
+  }
+
+  public String getAddress() {
+    return representativeAddress != null ? representativeAddress.getRoadAddress() : null;
+  }
+
+
+  // 대표 주소를 설정하는 메서드 (대표 주소 변경 시 사용)
+  public void setRepresentativeAddress(UserAddress representativeAddress) {
+    this.representativeAddress = representativeAddress;
   }
 
 }

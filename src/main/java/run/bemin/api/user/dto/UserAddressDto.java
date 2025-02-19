@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddressDto {
+public class UserAddressDto {
   private String zoneCode;
   private String bcode;
   private String jibunAddress;

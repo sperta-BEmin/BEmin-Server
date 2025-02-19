@@ -12,7 +12,7 @@ public class UserResponseDto {
   private String name;
   private String nickname;
   private String phone;
-  private String address;
+  private String representativeAddress; // 대표 주소
   private UserRoleEnum role;
 
   public UserResponseDto(User user) {
@@ -20,7 +20,10 @@ public class UserResponseDto {
     this.name = user.getName();
     this.nickname = user.getNickname();
     this.phone = user.getPhone();
-    this.address = user.getAddress();
     this.role = user.getRole();
+    // 대표 주소를 representativeAddress에서 가져옴 (null 체크 포함)
+    this.representativeAddress = user.getRepresentativeAddress() != null
+        ? user.getRepresentativeAddress().getRoadAddress()
+        : null;
   }
 }
