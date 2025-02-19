@@ -39,6 +39,4 @@ public class CategoryController {
     return ResponseEntity.ok(
         ApiResponse.from(CATEGORIES_FETCHED.getStatus(), CATEGORIES_FETCHED.getMessage(), categories));
   }
-
-
 }
