@@ -12,6 +12,7 @@ import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.repo.OrderRepository;
 import run.bemin.api.payment.domain.PaymentStatus;
 import run.bemin.api.payment.dto.CreatePaymentDto;
+import run.bemin.api.payment.dto.PaymentCancelDto;
 import run.bemin.api.payment.dto.PaymentDto;
 import run.bemin.api.payment.entity.Payment;
 import run.bemin.api.payment.exception.PaymentException;
@@ -29,7 +30,7 @@ public class PaymentService {
   // 토큰 추출하기
   public String extractToken(String token) {
     if (token == null || !token.startsWith("Bearer ")) {
-      throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+      throw new PaymentException(ErrorCode.INVALID_ACCESS);
     }
 
     String extractToken = token.substring(7);
@@ -64,7 +65,24 @@ public class PaymentService {
   }
 
   /*
-   * 메서드명 :
+   * 메서드명 : paymentCancel
+   * 목적 : 결제 취소
    * */
+  @Transactional
+  public PaymentCancelDto cancelPayment(String authToken, UUID paymentId) {
+    String userEmail = extractToken(authToken);
+
+    Payment payment = paymentRepository.findById(paymentId)
+        .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
+
+    // 이미 취소된 주문은 예외 발생
+    if (payment.getStatus() == PaymentStatus.CANCELED) {
+      throw new PaymentException(ErrorCode.PAYMENT_IS_CANCELED);
+    }
+
+    payment.cancelPayment(userEmail);
+
+    return PaymentCancelDto.from(payment);
+  }
 
 }

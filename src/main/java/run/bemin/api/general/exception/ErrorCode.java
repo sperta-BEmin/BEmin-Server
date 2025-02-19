@@ -83,7 +83,10 @@ public enum ErrorCode {
   STORE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ST003", "가게 정보 업데이트에 실패했습니다."),
   USER_DUPLICATE_NICKNAME(HttpStatus.CONFLICT.value(), "U006", "닉네임이 이미 존재합니다."),
 
-  USER_LIST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U002", "조회된 사용자가 없습니다."),
+  // Payment Error Code (결제 관련 오류)
+  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "주문이 존재하지 않습니다."),
+  PAYMENT_IS_CANCELED(HttpStatus.BAD_REQUEST.value(), "P002", "이미 취소된 결제 내역입니다."),
+  PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P003", "결제 내역이 존재하지 않습니다."),
 
   USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U005", "해당 이메일의 사용자를 찾을 수 없습니다."),
   USER_NO_FIELD_UPDATED(HttpStatus.BAD_REQUEST.value(), "U007", "아무것도 변경하지 않았습니다."),
