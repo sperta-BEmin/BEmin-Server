@@ -33,9 +33,8 @@ public class AdminCategoryController {
 
   private final CategoryService categoryService;
 
-  @PreAuthorize("hasAnyRole(" +
-      "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
-      "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
+  // TODO: 카테고리 추가는 MASTER만 가능하다. 지금은 개발 환경을 위해 임시 설정.
+  @PreAuthorize("not hasRole('CUSTOMER')")
   @PostMapping
   public ResponseEntity<ApiResponse<CategoryDto>> createCategory(
       @RequestBody CreateCategoryRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -46,11 +45,7 @@ public class AdminCategoryController {
         .body(ApiResponse.from(CATEGORY_CREATED.getStatus(), CATEGORY_CREATED.getMessage(), categoryDto));
   }
 
-  @PreAuthorize("hasAnyRole(" +
-      "T(run.bemin.api.user.entity.UserRoleEnum).CUSTOMER.getAuthority(), " +
-      "T(run.bemin.api.user.entity.UserRoleEnum).OWNER.getAuthority(), " +
-      "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
-      "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
+  @PreAuthorize("not hasRole('CUSTOMER')")
   @GetMapping
   public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAllCategories(
       @RequestParam(value = "name", required = false) String name,
@@ -74,22 +69,24 @@ public class AdminCategoryController {
   }
 
 
-  @PreAuthorize("hasAnyRole(" +
-      "T(run.bemin.api.user.entity.UserRoleEnum).MANAGER.getAuthority(), " +
-      "T(run.bemin.api.user.entity.UserRoleEnum).MASTER.getAuthority())")
+  @PreAuthorize("not hasRole('CUSTOMER')")
   @PatchMapping
-  public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(@RequestBody UpdateCategoryRequestDto requestDto) {
-    CategoryDto categoryDto = categoryService.updatedCategory(requestDto);
+  public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(
+      @RequestBody UpdateCategoryRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    CategoryDto categoryDto = categoryService.updatedCategory(requestDto, userDetails);
 
     return ResponseEntity
         .status(CATEGORY_UPDATED.getStatus())
         .body(ApiResponse.from(CATEGORY_UPDATED.getStatus(), CATEGORY_UPDATED.getMessage(), categoryDto));
   }
 
+  @PreAuthorize("not hasRole('CUSTOMER')")
   @DeleteMapping
   public ResponseEntity<ApiResponse<CategoryDto>> softDeleteCategory(
-      @RequestBody SoftDeleteCategoryRequestDto requestDto) {
-    CategoryDto categoryDto = categoryService.softDeleteCategory(requestDto);
+      @RequestBody SoftDeleteCategoryRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    CategoryDto categoryDto = categoryService.softDeleteCategory(requestDto, userDetails);
 
     return ResponseEntity
         .status(CATEGORY_DELETED.getStatus())
