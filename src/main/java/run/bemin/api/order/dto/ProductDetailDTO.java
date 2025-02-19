@@ -7,7 +7,16 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CancelOrderRequest {
+public class ProductDetailDTO {
   @NotNull
-  private UUID orderId; // 주문 ID
+  private UUID productId;
+
+  @NotNull
+  private String productName;
+
+  @NotNull
+  private Integer quantity;
+
+  @NotNull
+  private Integer price;
 }

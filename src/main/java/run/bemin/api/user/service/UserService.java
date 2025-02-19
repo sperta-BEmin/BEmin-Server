@@ -79,6 +79,15 @@ public class UserService {
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
   }
 
+  /**
+   * 특정 회원 조회 후 유저로 반환
+   */
+  @Transactional
+  public User findByUserEmail(String userEmail) {
+    return userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+  }
+
   @Transactional
   public UserResponseDto updateUser(String userEmail, UserUpdateRequestDto requestDto) {
     return updateUserInfo(userEmail, requestDto);

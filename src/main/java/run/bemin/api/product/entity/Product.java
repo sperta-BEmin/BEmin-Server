@@ -46,7 +46,7 @@ public class Product extends AuditableEntity {
   private boolean isHidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "store_id", nullable = false)
+  @JoinColumn(name = "store_id", nullable = true)
   private Store store;
 
   @Column(name = "activated", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
