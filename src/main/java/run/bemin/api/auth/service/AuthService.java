@@ -25,7 +25,10 @@ import run.bemin.api.auth.jwt.JwtUtil;
 import run.bemin.api.auth.repository.AuthRepository;
 import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.security.UserDetailsImpl;
+import run.bemin.api.user.dto.AddressDto;
 import run.bemin.api.user.entity.User;
+import run.bemin.api.user.entity.UserAddress;
+import run.bemin.api.user.repository.UserAddressRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
   private final JwtUtil jwtUtil;
+  private final UserAddressRepository userAddressRepository;
 
   @Transactional
   public SignupResponseDto signup(@Valid SignupRequestDto requestDto) {
@@ -56,10 +60,23 @@ public class AuthService {
         .name(requestDto.getName())
         .nickname(requestDto.getNickname())
         .phone(requestDto.getPhone())
-        .address(requestDto.getAddress())
+        .address(requestDto.getAddress().getRoadAddress()) // 대표 주소로 도로명주소 설정
         .role(requestDto.getRole())
         .build();
     User savedUser = authRepository.save(user);
+
+    // 2. AddressDto를 사용해 UserAddress 엔티티 생성 (대표 주소로 저장)
+    AddressDto addrDto = requestDto.getAddress();
+    UserAddress userAddress = UserAddress.builder()
+        .zoneCode(addrDto.getZoneCode())
+        .bcode(addrDto.getBcode())
+        .jibunAddress(addrDto.getJibunAddress())
+        .roadAddress(addrDto.getRoadAddress())
+        .detail(addrDto.getDetail())
+        .isRepresentative(true)
+        .user(savedUser)
+        .build();
+    userAddressRepository.save(userAddress);
 
     return new SignupResponseDto(savedUser.getUserEmail(), savedUser.getRole().getAuthority());
   }
