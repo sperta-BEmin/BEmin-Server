@@ -10,14 +10,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.payment.domain.PaymentMethod;
 import run.bemin.api.payment.domain.PaymentStatus;
@@ -25,7 +23,7 @@ import run.bemin.api.payment.domain.PaymentStatus;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Payment {
+public class Payment extends AuditableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID paymentId;
@@ -45,14 +43,7 @@ public class Payment {
   @Column(nullable = false)
   private PaymentStatus status;
 
-  @CreationTimestamp
-  @Column(updatable = false)
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  private LocalDateTime updatedAt;
-
-  private UUID createdBy;
+  @Column(nullable = true)
   private UUID deletedBy;
 
   // 결제 상태 변경 메서드 : COMPLETED -> FAILED
@@ -67,11 +58,10 @@ public class Payment {
   }
 
   @Builder
-  public Payment(Order order, PaymentMethod payment, int amount, PaymentStatus status, UUID createdBy) {
+  public Payment(Order order, PaymentMethod payment, int amount, PaymentStatus status) {
     this.order = order;
     this.payment = payment;
     this.amount = amount;
     this.status = status;
-    this.createdBy = createdBy;
   }
 }
