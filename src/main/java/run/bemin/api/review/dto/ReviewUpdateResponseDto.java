@@ -11,13 +11,13 @@ public class ReviewUpdateResponseDto {
   private final int reviewRating;
   private final String description;
   private final LocalDateTime updatedAt;
-  private final UUID updatedBy;
+  private final String updatedBy;
 
   public ReviewUpdateResponseDto(Review review) {
     this.reviewId = review.getReviewId();
     this.reviewRating = review.getReviewRating().getValue();
     this.description = review.getDescription();
     this.updatedAt = review.getUpdatedAt();
-    this.updatedBy = review.getUpdateBy();
+    this.updatedBy = review.getUpdatedBy();
   }
 }

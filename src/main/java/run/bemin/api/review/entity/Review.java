@@ -58,18 +58,13 @@ public class Review extends AuditableEntity {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 
-  
-  private UUID updatedBy;
-
-
   private UUID deletedBy;
   private LocalDateTime deletedAt;
 
   // 리뷰 수정하기
-  public void updateReview(ReviewRating reviewRating, String description, UUID updatedBy) {
+  public void updateReview(ReviewRating reviewRating, String description) {
     this.reviewRating = reviewRating;
     this.description = description;
-    this.updatedBy = updatedBy;
   }
 
   @Builder
