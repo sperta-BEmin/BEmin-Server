@@ -12,11 +12,11 @@ public record StoreDto(
     Float rating,
     Boolean isDeleted,
     String userEmail,
-    String createdBy,
-    String updatedBy,
+//    String createdBy,
+//    String updatedBy,
     String deletedBy,
-    LocalDateTime createdAt,
-    LocalDateTime updatedAt,
+//    LocalDateTime createdAt,
+//    LocalDateTime updatedAt,
     LocalDateTime deletedAt
 ) {
 
@@ -27,16 +27,14 @@ public record StoreDto(
         store.getPhone(),
         store.getMinimumPrice(),
         store.getRating(),
-        store.getIsDeleted(),
-        store.getCreatedBy(),
-        store.getUpdatedBy(),
+        store.isDeleted(),
+        store.getUserEmail(),  // 순서 수정
+//        store.getCreatedBy(),
+//        store.getUpdatedBy(),
         store.getDeletedBy(),
-        store.getUserEmail(),
-        store.getCreatedAt(),
-        store.getUpdatedAt(),
+//        store.getCreatedAt(),
+//        store.getUpdatedAt(),
         store.getDeletedAt()
     );
   }
-
-
 }
