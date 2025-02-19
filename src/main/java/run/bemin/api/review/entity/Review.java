@@ -14,16 +14,22 @@ import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.review.domain.ReviewRating;
 import run.bemin.api.user.entity.User;
 
 @Entity
+@Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Review {
+public class Review extends AuditableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID reviewId;
@@ -39,7 +45,7 @@ public class Review {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ReviewRating review;
+  private ReviewRating reviewRating;
 
   @Lob
   @Column(columnDefinition = "text")
@@ -52,6 +58,25 @@ public class Review {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 
-  private UUID createdBy;
+  
+  private UUID updatedBy;
+
+
   private UUID deletedBy;
+  private LocalDateTime deletedAt;
+
+  // 리뷰 수정하기
+  public void updateReview(ReviewRating reviewRating, String description, UUID updatedBy) {
+    this.reviewRating = reviewRating;
+    this.description = description;
+    this.updatedBy = updatedBy;
+  }
+
+  @Builder
+  public Review(Order order, User user, ReviewRating reviewRating, String description) {
+    this.order = order;
+    this.user = user;
+    this.reviewRating = reviewRating;
+    this.description = description;
+  }
 }

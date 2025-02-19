@@ -13,6 +13,10 @@ public enum ReviewRating {
     this.value = value;
   }
 
+  public int getValue() {
+    return value;
+  }
+
   public static ReviewRating fromValue(int value) {
     for (ReviewRating rating : values()) {
       if (rating.value == value) {
