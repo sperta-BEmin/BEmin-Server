@@ -1,5 +1,6 @@
 package run.bemin.api.store.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
@@ -9,4 +10,7 @@ public interface StoreRepository extends CrudRepository<Store, UUID> {
   Boolean existsByName(String name);
 
   Optional<Store> findByUserEmail(String userEmail);
+
+  List<Store> findAllByIsDeletedFalse();
+
 }

@@ -30,8 +30,6 @@ public class StoreValidationMessages {
   public static final String STORE_ADDRESS_DETAIL_BLACK = "가게 상세 주소: 필수 정보입니다.";
   public static final String STORE_ADDRESS_DETAIL_INVALID = "가게 상세 주소는 한글, 영문, 숫자, 특수 문자(-, ,), 공백만 입력 가능 최대 1~84글자 이내여야 합니다.";
 
-
-  // TODO: 회원 Validation 메시지에서 가져와야 할 필요가 있다.
   public static final String USER_EMAIL_BLANK = "이메일: 필수 정보 입니다.";
   public static final String USER_EMAIL_INVALID = "이메일: 잘못된 이메일 주소입니다.";
 
