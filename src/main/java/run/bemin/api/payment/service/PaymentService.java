@@ -1,6 +1,8 @@
 package run.bemin.api.payment.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,22 @@ public class PaymentService {
 
     String extractToken = token.substring(7);
     return jwtUtil.getUserEmailFromToken(extractToken);
+  }
+
+  /*
+   * 메서드명 : getUserPayments
+   * 목적 : 사용자의 결제 내역 조회
+   * */
+  public List<PaymentDto> getUserPayments(String authToken) {
+    String userEmail = extractToken(authToken);
+
+    // 사용자 결제 내역 조회
+    List<Payment> payments = paymentRepository.findByCreatedBy(userEmail);
+
+    // dto 변환 후 반환
+    return payments.stream()
+        .map(PaymentDto::from)
+        .collect(Collectors.toList());
   }
 
   /*
