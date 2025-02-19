@@ -13,12 +13,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_store_address")
-public class StoreAddress {
+public class StoreAddress extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -58,5 +59,13 @@ public class StoreAddress {
   // Store와의 양방향 연관관계 설정용 메서드
   public void setStore(Store store) {
     this.store = store;
+  }
+
+  public void update(String zoneCode, String bcode, String jibunAddress, String roadAddress, String detail) {
+    this.zoneCode = zoneCode;
+    this.bcode = bcode;
+    this.jibunAddress = jibunAddress;
+    this.roadAddress = roadAddress;
+    this.detail = detail;
   }
 }

@@ -14,11 +14,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import run.bemin.api.category.entity.Category;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_store_category")
-public class StoreCategory {
+public class StoreCategory extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,22 +37,10 @@ public class StoreCategory {
   private Boolean isPrimary;
 
   @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+  private Boolean isDeleted = false;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
-
-  @Column(name = "created_by", nullable = false, updatable = false)
-  private String createdBy;
-
-  @Column(name = "updated_by")
-  private String updatedBy;
 
   @Column(name = "deleted_by")
   private String deletedBy;
@@ -60,9 +49,6 @@ public class StoreCategory {
     this.store = store;
     this.category = category;
     this.isPrimary = isPrimary != null ? isPrimary : false;
-    this.isDeleted = false;
-    this.createdBy = createdBy;
-    this.createdAt = LocalDateTime.now();
   }
 
   public static StoreCategory create(Store store, Category category, Boolean isPrimary, String createdBy) {
@@ -76,8 +62,14 @@ public class StoreCategory {
   }
 
   public void update(String updatedBy, Boolean isPrimary) {
-    this.updatedBy = updatedBy;
-    this.updatedAt = LocalDateTime.now();
     this.isPrimary = isPrimary != null ? isPrimary : this.isPrimary;
   }
+
+  public void restore(String updatedBy, Boolean isPrimary) {
+    this.isDeleted = false;
+    this.deletedBy = null;
+    this.deletedAt = null;
+    update(updatedBy, isPrimary);
+  }
+
 }
