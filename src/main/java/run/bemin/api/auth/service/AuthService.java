@@ -72,12 +72,17 @@ public class AuthService {
     validateEmail(email);
     boolean isDuplicate = authRepository.existsByUserEmail(email);
 
+    if (isDuplicate) {
+      throw new SignupDuplicateEmailException(ErrorCode.SIGNUP_DUPLICATE_EMAIL.getMessage());
+    }
+
     return new EmailCheckResponseDto(
-        isDuplicate,
-        isDuplicate ? ErrorCode.SIGNUP_DUPLICATE_EMAIL.getMessage() : "사용 가능한 이메일입니다.",
-        isDuplicate ? ErrorCode.SIGNUP_DUPLICATE_EMAIL.getCode() : null
+        false,
+        "사용 가능한 이메일입니다.",
+        null
     );
   }
+
 
   // 이메일 형식 검증
   private void validateEmail(String email) {
@@ -94,12 +99,17 @@ public class AuthService {
     validateNickname(nickname);
     boolean isDuplicate = authRepository.existsByNickname(nickname);
 
+    if (isDuplicate) {
+      throw new SignupDuplicateNicknameException(ErrorCode.SIGNUP_DUPLICATE_NICKNAME.getMessage());
+    }
+
     return new NicknameCheckResponseDto(
-        isDuplicate,
-        isDuplicate ? ErrorCode.SIGNUP_DUPLICATE_NICKNAME.getMessage() : "사용 가능한 닉네임입니다.",
-        isDuplicate ? ErrorCode.SIGNUP_DUPLICATE_NICKNAME.getCode() : null
+        false,
+        "사용 가능한 닉네임입니다.",
+        null
     );
   }
+
 
   // 닉네임 형식 검증
   private void validateNickname(String nickname) {
@@ -118,7 +128,7 @@ public class AuthService {
 
       UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
       String authToken = jwtUtil.createAccessToken(userDetails.getUsername(), userDetails.getRole());
-      return new SigninResponseDto(authToken, userDetails.getUsername());
+      return new SigninResponseDto(authToken, userDetails.getUsername(), userDetails.getNickname());
 
     } catch (BadCredentialsException e) {
       throw new SigninUnauthorizedException(ErrorCode.SIGNIN_UNAUTHORIZED_USER.getMessage());
