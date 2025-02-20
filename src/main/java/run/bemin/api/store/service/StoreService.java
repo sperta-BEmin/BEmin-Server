@@ -4,9 +4,11 @@ import static run.bemin.api.general.exception.ErrorCode.CATEGORY_NOT_FOUND;
 import static run.bemin.api.general.exception.ErrorCode.STORE_ALREADY_DELETE;
 import static run.bemin.api.general.exception.ErrorCode.STORE_NOT_FOUND;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,8 +39,12 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final CategoryRepository categoryRepository;
 
-  public Boolean existsStoreByName(String name) {
-    return storeRepository.existsByName(name);
+  @Transactional(readOnly = true)
+  public List<StoreDto> getStoresByUserEmail(String userEmail) {
+    List<Store> stores = storeRepository.findByOwner_UserEmail(userEmail);
+    return stores.stream()
+        .map(StoreDto::fromEntity)
+        .collect(Collectors.toList());
   }
 
   // 카테고리 수(MAX_CATEGORY_COUNT) 검증 및 존재 여부 검증을 함께 수행
