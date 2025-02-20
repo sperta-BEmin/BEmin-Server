@@ -132,12 +132,39 @@ public class Store extends AuditableEntity {
     this.owner = owner;
   }
 
+  // 가게 활성화 여부 업데이트
+  public void updateIsActive(Boolean isActive) {
+    this.isActive = isActive;
+  }
+
+  // 가게 최소금액 업데이트
+  public void updateMinimumPrice(Integer minimumPrice) {
+    this.minimumPrice = minimumPrice;
+  }
+
+  // 가게 이름 업데이트
+  public void updateName(String name) {
+    this.name = name;
+  }
+
+  // 가게 주인 업데이트
+  public void updateOwner(User newOwner) {
+    this.owner = newOwner;
+  }
+  
+  // 가게 전화번호 업데이트
+  public void updatePhone(String newPhone) {
+    this.phone = newPhone;
+  }
+
   // 소프트 삭제 처리: 삭제 플래그 및 삭제 시간, 삭제자 정보를 기록
   public void softDelete(String deletedBy) {
     this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
     this.deletedBy = deletedBy;
   }
+
+
 
    // 카테고리 업데이트: 새로운 카테고리 목록에 따라 기존 연결을 소프트 삭제, 업데이트 또는 신규 추가
   public void updateCategories(List<Category> newCategories, String currentUser) {

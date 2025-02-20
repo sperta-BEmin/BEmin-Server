@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import run.bemin.api.category.dto.CategoryDto;
-import run.bemin.api.store.dto.StoreAddressDto;
 import run.bemin.api.store.entity.Store;
 
 public record StoreDto(
