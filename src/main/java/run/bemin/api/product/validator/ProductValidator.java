@@ -23,7 +23,7 @@ public class ProductValidator {
     String email = ((UserDetailsImpl) auth.getPrincipal()).getUsername();
     UserRoleEnum role = ((UserDetailsImpl) auth.getPrincipal()).getUser().getRole();
 
-    Store store = storeRepository.findByUserEmail(email)
+    Store store = storeRepository.findByOwner_UserEmail(email)
         .orElseThrow(() -> new StoreNotFoundException(ProductValidationMessages.STORE_NOT_FOUND.getMessage()));
 
     if (!role.equals(UserRoleEnum.OWNER)) {
