@@ -65,9 +65,11 @@ public class OrderController {
   public ResponseEntity<ApiResponse<PagesResponse<ReadOrderResponse>>> getOrdersByUserEmail(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
-      @RequestAttribute("userEmail") String userEmail // JWT 공용 메서드에서 값 획득
+      @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder,
+      @AuthenticationPrincipal UserDetailsImpl user // JWT 공용 메서드에서 값 획득
   ) {
-    PagesResponse<ReadOrderResponse> response = orderService.getOrdersByUserEmail(userEmail, page, size);
+    String userEmail = user.getUsername();
+    PagesResponse<ReadOrderResponse> response = orderService.getOrdersByUserEmail(userEmail, page, size, sortOrder);
     return ResponseEntity
         .status(OrderResponseCode.ORDER_FETCHED.getStatus())
         .body(ApiResponse.from(

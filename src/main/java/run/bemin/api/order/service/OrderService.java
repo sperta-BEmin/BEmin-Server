@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.order.dto.request.CancelOrderRequest;
@@ -78,8 +79,9 @@ public class OrderService {
    * @return 페이징 처리되어 반환되는 주문 목록
    */
   @Transactional(readOnly = true)
-  public PagesResponse<ReadOrderResponse> getOrdersByUserEmail(String userEmail, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
+  public PagesResponse<ReadOrderResponse> getOrdersByUserEmail(String userEmail, int page, int size, String sortOrder) {
+    Sort sort = sortOrder.equals("asc") ? Sort.by("createdAt").ascending() : Sort.by("createdAt").descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     Page<Order> orders = orderRepository.findAllByUser_UserEmail(userEmail, pageable);
 
     // Order -> OrderResponse 변환
@@ -91,6 +93,9 @@ public class OrderService {
             .orderType(order.getOrderType().getCode())
             .orderStatus(order.getOrderStatus().getCode())
             .orderAddress(order.getOrderAddress())
+            .cancelled(order.getCancelled())
+            .createdAt(order.getCreatedAt())
+            .totalPrice(order.getTotalPrice())
             .build())
         .toList();
 
@@ -99,6 +104,7 @@ public class OrderService {
         .data(data)
         .pageNumber(orders.getNumber())
         .pageSize(orders.getSize())
+        .totalPages(orders.getTotalPages())
         .totalElements(orders.getTotalPages())
         .build();
   }

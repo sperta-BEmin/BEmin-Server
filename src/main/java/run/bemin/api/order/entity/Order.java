@@ -57,7 +57,8 @@ public class Order extends AuditableEntity {
   private OrderType orderType;
 
   @Convert(converter = OrderStatusConverter.class)
-  private OrderStatus orderStatus;
+  @Column(nullable = false)
+  private OrderStatus orderStatus = OrderStatus.PENDING;
 
   @Column(nullable = false)
   private String storeName;
