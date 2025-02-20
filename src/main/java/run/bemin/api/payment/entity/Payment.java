@@ -44,7 +44,7 @@ public class Payment extends AuditableEntity {
   private PaymentStatus status;
 
   @Column(nullable = true)
-  private UUID deletedBy;
+  private String deletedBy;
 
   // 결제 상태 변경 메서드 : COMPLETED -> FAILED
   public void updateStatus(PaymentStatus status) {
@@ -52,7 +52,7 @@ public class Payment extends AuditableEntity {
   }
 
   // 결제 취소(환불) 메서드 : COMPLETED -> CANCELED
-  public void cancelPayment(UUID deletedBy) {
+  public void cancelPayment(String deletedBy) {
     this.status = PaymentStatus.CANCELED;
     this.deletedBy = deletedBy;
   }
