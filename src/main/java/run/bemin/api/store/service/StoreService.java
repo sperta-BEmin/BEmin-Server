@@ -3,8 +3,8 @@ package run.bemin.api.store.service;
 import static run.bemin.api.general.exception.ErrorCode.CATEGORY_NOT_FOUND;
 import static run.bemin.api.general.exception.ErrorCode.STORE_ALREADY_DELETE;
 import static run.bemin.api.general.exception.ErrorCode.STORE_NOT_FOUND;
+import static run.bemin.api.general.exception.ErrorCode.USER_NOT_FOUND;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,13 +22,19 @@ import run.bemin.api.category.repository.CategoryRepository;
 import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.store.dto.StoreDto;
 import run.bemin.api.store.dto.request.CreateStoreRequestDto;
+import run.bemin.api.store.dto.request.StoreActivationStatusDto;
+import run.bemin.api.store.dto.request.UpdateAddressInStoreRequestDto;
 import run.bemin.api.store.dto.request.UpdateAllStoreRequestDto;
+import run.bemin.api.store.dto.request.UpdateCategoriesInStoreRequestDto;
 import run.bemin.api.store.dto.response.GetStoreResponseDto;
 import run.bemin.api.store.entity.Store;
 import run.bemin.api.store.entity.StoreAddress;
 import run.bemin.api.store.exception.CategoryCountExceededException;
 import run.bemin.api.store.exception.StoreNotFoundException;
 import run.bemin.api.store.repository.StoreRepository;
+import run.bemin.api.user.entity.User;
+import run.bemin.api.user.exception.UserNotFoundException;
+import run.bemin.api.user.repository.UserRepository;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +44,7 @@ public class StoreService {
 
   private final StoreRepository storeRepository;
   private final CategoryRepository categoryRepository;
+  private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
   public List<StoreDto> getStoresByUserEmail(String userEmail) {
@@ -71,7 +78,7 @@ public class StoreService {
         .detail(requestDto.detail())
         .build();
 
-    // User 객체를 DTO의 userEmail 대신 인증된 사용자에서 가져옴
+    // User 객체를 DTO 의 userEmail 대신 인증된 사용자에서 가져옴
     Store store = Store.create(
         requestDto.name(),
         requestDto.phone(),
@@ -81,7 +88,7 @@ public class StoreService {
         userDetails.getUser() // 수정된 부분: User 객체 전달
     );
 
-    storeAddress.setStore(store); // 양방향 연관관계 설정: StoreAddress에 Store 할당
+    storeAddress.setStore(store); // 양방향 연관관계 설정: StoreAddress 에 Store 할당
 
     // 카테고리 연결 (각 카테고리 등록 시 createdBy 정보를 전달)
     categories.forEach(category -> store.addCategory(category, userDetails.getUsername()));
@@ -106,7 +113,7 @@ public class StoreService {
         userDetails.getUser()  // 수정된 부분: User 객체 전달
     );
 
-    // 가게 주소 업데이트 (가게 주소가 null이 아니라고 가정)
+    // 가게 주소 업데이트 (가게 주소가 null 이 아니라고 가정)
     store.getStoreAddress().update(
         requestDto.zoneCode(),
         requestDto.bcode(),
@@ -179,5 +186,127 @@ public class StoreService {
     }
     return storeRepository.findAll(pageable)
         .map(StoreDto::fromEntity);
+  }
+
+  public StoreDto updateCategoriesInStore(
+      UUID storeId,
+      UpdateCategoriesInStoreRequestDto requestDto,
+      UserDetailsImpl userDetails) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
+
+    List<Category> categories = validateAndFetchCategories(requestDto.categoryIds());
+
+    // 카테고리 업데이트 (기존 목록 삭제 후 재설정)
+    store.updateCategories(categories, userDetails.getUsername());
+
+    Store updatedStore = storeRepository.save(store);
+    return StoreDto.fromEntity(updatedStore);
+  }
+
+  @Transactional
+  public StoreDto updateAddressInStore(
+      UUID storeId,
+      UpdateAddressInStoreRequestDto requestDto) {
+
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
+
+    // 가게 주소 업데이트 (가게 주소가 null 이 아니라고 가정)
+    store.getStoreAddress().update(
+        requestDto.zoneCode(),
+        requestDto.bcode(),
+        requestDto.jibunAddress(),
+        requestDto.roadAddress(),
+        requestDto.detail()
+    );
+
+    Store updatedStore = storeRepository.save(store);
+    return StoreDto.fromEntity(updatedStore);
+  }
+
+  @Transactional
+  public StoreDto updateIsActiveInStore(UUID storeId, Boolean isActive) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
+
+    store.updateIsActive(isActive);
+    Store updatedStore = storeRepository.save(store);
+    return StoreDto.fromEntity(updatedStore);
+  }
+
+  @Transactional
+  public List<StoreDto> updateStoresActivationStatus(List<StoreActivationStatusDto> statusList) {
+    List<UUID> storeIds = statusList.stream()
+        .map(StoreActivationStatusDto::storeId)
+        .collect(Collectors.toList());
+
+    List<Store> stores = storeRepository.findAllById(storeIds);
+
+    if (stores.isEmpty()) {
+      throw new StoreNotFoundException(STORE_NOT_FOUND.getMessage());
+    }
+
+    // 각 가게별로 다른 상태 적용
+    stores.forEach(store -> {
+      statusList.stream()
+          .filter(s -> s.storeId().equals(store.getId()))
+          .findFirst()
+          .ifPresent(s -> store.updateIsActive(s.isActive()));
+    });
+
+    storeRepository.saveAll(stores);
+
+    return stores.stream()
+        .map(StoreDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public StoreDto updateMinimumPriceInStore(UUID storeId, Integer price) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
+
+    store.updateMinimumPrice(price);
+    Store updatedStore = storeRepository.save(store);
+    return StoreDto.fromEntity(updatedStore);
+  }
+
+
+  @Transactional
+  public StoreDto updateNameInStore(UUID storeId, String name) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
+
+    store.updateName(name);
+    Store updatedStore = storeRepository.save(store);
+    return StoreDto.fromEntity(updatedStore);
+  }
+
+  @Transactional
+  public StoreDto updateStoreOwner(UUID storeId, String userEmail) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
+
+    // 새로운 주인 정보 가져오기
+    User newOwner = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND.getMessage() + ": " + userEmail));
+
+    // 가게의 주인 변경 로직 (가게 엔티티에 setter 또는 업데이트 메서드 사용)
+    store.updateOwner(newOwner);
+    storeRepository.save(store);
+
+    return StoreDto.fromEntity(store);
+  }
+
+  @Transactional
+  public StoreDto updatePhoneInStore(UUID storeId, String newPhone) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage() + ": " + storeId));
+
+    store.updatePhone(newPhone);
+    storeRepository.save(store);
+
+    return StoreDto.fromEntity(store);
   }
 }
