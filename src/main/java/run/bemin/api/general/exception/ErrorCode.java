@@ -76,6 +76,7 @@ public enum ErrorCode {
   STORE_RATING_INVALID(HttpStatus.BAD_REQUEST.value(), "ST008", "가게 평점이 유효하지 않습니다."),
   STORE_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "ST009", "가게에 대한 권한이 없습니다."),
   STORE_DISABLED(HttpStatus.FORBIDDEN.value(), "ST010", "비활성화된 가게입니다."),
+  STORE_ALREADY_DELETE(HttpStatus.BAD_REQUEST.value(), "STO11", "이미 삭제된 가게입니다."),
 
   // Product (상품 관련 오류)
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PR001", "상품을 찾을 수 없습니다."),
