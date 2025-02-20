@@ -23,6 +23,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import run.bemin.api.category.entity.Category;
 import run.bemin.api.general.auditing.AuditableEntity;
+import run.bemin.api.product.entity.Product;
+import run.bemin.api.review.entity.Review;
 import run.bemin.api.user.entity.User;
 
 @Getter
@@ -64,6 +66,12 @@ public class Store extends AuditableEntity {
   // 가게와 카테고리 간의 연결 (StoreCategory 엔티티를 통해 다대다 관계 관리)
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
   private final List<StoreCategory> storeCategories = new ArrayList<>();
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
+  private final List<Review> reviews = new ArrayList<>();
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
+  private final List<Product> products = new ArrayList<>();
 
   @Column(name = "is_deleted", nullable = false)
   @ColumnDefault("false")
