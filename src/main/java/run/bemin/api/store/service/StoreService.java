@@ -309,4 +309,9 @@ public class StoreService {
 
     return StoreDto.fromEntity(store);
   }
+
+  @Transactional
+  public Page<Store> searchStores(String categoryName, String storeName, Pageable pageable) {
+    return storeRepository.searchStores(categoryName, storeName, pageable);
+  }
 }
