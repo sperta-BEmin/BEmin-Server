@@ -5,6 +5,7 @@ import static run.bemin.api.category.dto.CategoryResponseCode.CATEGORY_CREATED;
 import static run.bemin.api.category.dto.CategoryResponseCode.CATEGORY_DELETED;
 import static run.bemin.api.category.dto.CategoryResponseCode.CATEGORY_UPDATED;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ import run.bemin.api.general.response.ApiResponse;
 import run.bemin.api.security.UserDetailsImpl;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/category")
+@RequestMapping("/api/v1/admin/categories")
 @RestController
 public class AdminCategoryController {
 
@@ -46,28 +47,38 @@ public class AdminCategoryController {
   }
 
   @PreAuthorize("not hasRole('CUSTOMER')")
-  @GetMapping
-  public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAllCategories(
-      @RequestParam(value = "name", required = false) String name,
-      @RequestParam(value = "isDeleted", required = false) Boolean isDeleted,
-      @RequestParam(value = "page", defaultValue = "0") Integer page,
-      @RequestParam(value = "size", defaultValue = "10") Integer size,
-      @RequestParam(value = "sortBy", defaultValue = "createdBy") String sortBy,
-      @RequestParam(value = "isAsc", defaultValue = "true") Boolean isAsc
-  ) {
-    Page<CategoryDto> categories = categoryService.getAllCategories(
-        name,
-        isDeleted,
-        page,
-        size,
-        sortBy,
-        isAsc,
-        true);
+  @PostMapping("/batch")
+  public ResponseEntity<ApiResponse<List<CategoryDto>>> createCategories(
+      @RequestBody List<CreateCategoryRequestDto> requestDtoList,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    List<CategoryDto> categories = categoryService.createCategories(requestDtoList, userDetails);
 
-    return ResponseEntity.ok(
-        ApiResponse.from(CATEGORIES_FETCHED.getStatus(), CATEGORIES_FETCHED.getMessage(), categories));
+    return ResponseEntity
+        .status(CATEGORY_CREATED.getStatus())
+        .body(ApiResponse.from(CATEGORY_CREATED.getStatus(), CATEGORY_CREATED.getMessage(), categories));
   }
 
+
+
+
+
+  @PreAuthorize("not hasRole('CUSTOMER')")
+  @GetMapping
+  public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAdminCategories(
+      @RequestParam(value = "name", required = false) String name,
+      @RequestParam(value = "page", defaultValue = "0") Integer page,
+      @RequestParam(value = "size", defaultValue = "10") Integer size
+  ) {
+    Page<CategoryDto> categories = categoryService.getAdminAllCategory(
+        name,
+        page,
+        size,
+        "createdAt",
+        true);
+    return ResponseEntity.ok(
+        ApiResponse.from(CATEGORIES_FETCHED.getStatus(), CATEGORIES_FETCHED.getMessage(), categories)
+    );
+  }
 
   @PreAuthorize("not hasRole('CUSTOMER')")
   @PatchMapping
