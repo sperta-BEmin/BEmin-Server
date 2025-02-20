@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +15,12 @@ import run.bemin.api.order.dto.request.CreateOrderRequest;
 import run.bemin.api.order.dto.response.PagesResponse;
 import run.bemin.api.order.dto.ProductDetailDTO;
 import run.bemin.api.order.dto.response.ReadOrderResponse;
-import run.bemin.api.order.dto.request.UpdateOrderRequest;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.service.OrderService;
 import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.user.entity.User;
 import run.bemin.api.user.service.UserService;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
@@ -37,15 +34,9 @@ public class OrderController {
    */
   @PostMapping("/order")
   public ResponseEntity<ApiResponse<Order>> createOrder(
-      HttpServletRequest httpServletRequest,
       @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @RequestBody @Valid CreateOrderRequest req) {
-
-    String token = httpServletRequest.getHeader("Authorization");
-    System.out.println(token);
-
-    log.info(userDetails.getUsername());
-    log.info(String.valueOf(userDetails.getUser().getRole()));
+      @RequestBody @Valid CreateOrderRequest req
+  ) {
     User user = userService.findByUserEmail(userDetails.getUsername());
     Order createdOrder = orderService.createOrder(req, user);
 
@@ -70,6 +61,7 @@ public class OrderController {
   ) {
     String userEmail = user.getUsername();
     PagesResponse<ReadOrderResponse> response = orderService.getOrdersByUserEmail(userEmail, page, size, sortOrder);
+
     return ResponseEntity
         .status(OrderResponseCode.ORDER_FETCHED.getStatus())
         .body(ApiResponse.from(
@@ -84,7 +76,9 @@ public class OrderController {
    */
   @GetMapping("/detail")
   public ResponseEntity<ApiResponse<List<ProductDetailDTO>>> getOrderDetailsByOrderId(@RequestParam UUID orderId) {
+
     List<ProductDetailDTO> productDetails = orderService.getOrderDetailsByOrderId(orderId);
+
     return ResponseEntity
         .status(OrderResponseCode.ORDER_DETAIL_FETCHED.getStatus())
         .body(ApiResponse.from(
@@ -95,32 +89,13 @@ public class OrderController {
   }
 
   /**
-   * 주문 상태 및 배달기사 정보 수정
-   */
-  @PatchMapping("/update")
-  public ResponseEntity<ApiResponse<Order>> updateOrder(@RequestBody @Valid UpdateOrderRequest req) {
-    Order updatedOrder = orderService.updateOrder(req);
-    return ResponseEntity
-        .status(OrderResponseCode.ORDER_UPDATED.getStatus())
-        .body(ApiResponse.from(
-            OrderResponseCode.ORDER_UPDATED.getStatus(),
-            OrderResponseCode.ORDER_UPDATED.getMessage(),
-            updatedOrder
-        ));
-  }
-
-  /**
    * 주문 취소
    */
   @PatchMapping("/cancel")
-  public ResponseEntity<ApiResponse<Order>> cancelOrder(@RequestBody @Valid CancelOrderRequest req) {
-    Order cancelledOrder = orderService.cancelOrder(req);
+  public ResponseEntity<ApiResponse<Void>> cancelOrder(@RequestBody @Valid CancelOrderRequest req) {
+    orderService.cancelOrder(req);
     return ResponseEntity
         .status(OrderResponseCode.ORDER_CANCELED.getStatus())
-        .body(ApiResponse.from(
-            OrderResponseCode.ORDER_CANCELED.getStatus(),
-            OrderResponseCode.ORDER_CANCELED.getMessage(),
-            cancelledOrder
-        ));
+        .build();
   }
 }

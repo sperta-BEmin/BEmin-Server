@@ -4,6 +4,7 @@ import java.util.UUID;
 import run.bemin.api.order.dto.request.UpdateOrderRequest;
 import run.bemin.api.order.exception.OrderNullException;
 import run.bemin.api.order.exception.OrderStatusException;
+import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.user.entity.User;
 
 /*
@@ -56,6 +57,11 @@ public class OrderDomainService {
     validateOrderCancellation(order);
 
     order.cancelOrder();
+  }
+
+
+  public void deleteOrder(Order order, UserDetailsImpl user) {
+    order.softDelete(user.getUsername());
   }
 
   /**
