@@ -44,6 +44,34 @@ public class ReviewService {
     return jwtUtil.getUserEmailFromToken(extractToken);
   }
 
+  // order 찾기
+  private Order getOrder(ReviewCreateRequestDto requestDto) {
+    Order order = orderRepository.findById(UUID.fromString(requestDto.getOrderId()))
+        .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
+    return order;
+  }
+
+  // user 찾기
+  private User getUser(String userEmail) {
+    User user = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+    return user;
+  }
+
+  // store 찾기
+  private Store getStore(ReviewCreateRequestDto requestDto) {
+    Store store = storeRepository.findById(UUID.fromString(requestDto.getStoreId()))
+        .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+    return store;
+  }
+
+  // review 찾기
+  private Review getReview(UUID reviewId) {
+    Review review = reviewRepository.findById(reviewId)
+        .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
+    return review;
+  }
+
   // 리뷰 생성
   @Transactional
   public ReviewCreateResponseDto createReview(String authToken, ReviewCreateRequestDto requestDto) {
@@ -51,14 +79,11 @@ public class ReviewService {
     String userEmail = extractToken(authToken);
 
     // error code 수정하기
-    Order order = orderRepository.findById(UUID.fromString(requestDto.getOrderId()))
-        .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
+    Order order = getOrder(requestDto);
 
-    User user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+    User user = getUser(userEmail);
 
-    Store store = storeRepository.findById(UUID.fromString(requestDto.getStoreId()))
-        .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+    Store store = getStore(requestDto);
 
     Review review = Review.builder()
         .order(order)
@@ -81,16 +106,14 @@ public class ReviewService {
 
     // error code 수정하기
     // 사용자 조회
-    User user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    User user = getUser(userEmail);
 
     // 리뷰 조회
-    Review review = reviewRepository.findById(reviewId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
+    Review review = getReview(reviewId);
 
     // 리뷰 작성자와 현재 로그인한 사용자 비교
     if (!review.getUser().equals(user)) {
-      throw new IllegalArgumentException("본인이 작성한 리뷰만 수정할 수 있습니다.");
+      throw new ReviewException(ErrorCode.REVIEW_FORBIDDEN);
     }
 
     // 리뷰 수정
@@ -106,12 +129,10 @@ public class ReviewService {
     String userEmail = extractToken(authToken);
 
     // 사용자 조회
-    User user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new ReviewException(ErrorCode.USER_LIST_NOT_FOUND));
+    User user = getUser(userEmail);
 
     // 리뷰 조회
-    Review review = reviewRepository.findById(reviewId)
-        .orElseThrow(() -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
+    Review review = getReview(reviewId);
 
     // 리뷰 작성자와 현재 로그인한 사용자 비교
     if (!review.getUser().equals(user)) {
