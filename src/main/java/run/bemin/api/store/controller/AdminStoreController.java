@@ -6,6 +6,7 @@ import static run.bemin.api.store.dto.StoreResponseCode.STORE_FETCHED;
 import static run.bemin.api.store.dto.StoreResponseCode.STORE_UPDATED;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,14 +37,16 @@ public class AdminStoreController {
   private final StoreService storeService;
 
   @PreAuthorize("not hasRole('CUSTOMER')")
-  @GetMapping("/{storeName}")
-  public ResponseEntity<ApiResponse<Boolean>> existsStoreName(@PathVariable String storeName) {
-    Boolean existsStoreByName = storeService.existsStoreByName(storeName);
-
+  @GetMapping("/by-user")
+  public ResponseEntity<ApiResponse<List<StoreDto>>> getStoresByUserEmail(
+      @RequestParam("userEmail") String userEmail) {
+    List<StoreDto> storeDtos = storeService.getStoresByUserEmail(userEmail);
     return ResponseEntity
         .status(STORE_FETCHED.getStatus())
-        .body(ApiResponse.from(STORE_FETCHED.getStatus(), STORE_FETCHED.getMessage(), existsStoreByName));
+        .body(ApiResponse.from(STORE_FETCHED.getStatus(), STORE_FETCHED.getMessage(), storeDtos));
   }
+
+
 
   @PreAuthorize("not hasRole('CUSTOMER')")
   @PostMapping
