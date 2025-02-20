@@ -68,7 +68,7 @@ public class User extends AuditableEntity {
   private UserAddress representativeAddress;
 
   @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = false)
-  private List<Store> stores = new ArrayList<>();
+  private final List<Store> stores = new ArrayList<>();
 
   public void updateUserInfo(
       String password,

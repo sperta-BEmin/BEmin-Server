@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import run.bemin.api.store.entity.Store;
 
-public interface StoreRepository extends JpaRepository<Store, UUID> {
+public interface StoreRepository extends JpaRepository<Store, UUID>, StoreRepositoryCustom {
 
   List<Store> findByOwner_UserEmail(String userEmail);
 
@@ -17,6 +17,5 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
 
   // 삭제 여부 상관 없이 검색
   Page<Store> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
-
 
 }
