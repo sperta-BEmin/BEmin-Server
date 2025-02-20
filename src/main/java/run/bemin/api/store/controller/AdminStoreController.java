@@ -26,8 +26,6 @@ import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.store.dto.StoreDto;
 import run.bemin.api.store.dto.request.CreateStoreRequestDto;
 import run.bemin.api.store.dto.request.UpdateAllStoreRequestDto;
-import run.bemin.api.store.dto.response.AdminStoreResponseDto;
-import run.bemin.api.store.dto.response.GetStoreResponseDto;
 import run.bemin.api.store.service.StoreService;
 
 @RequiredArgsConstructor
