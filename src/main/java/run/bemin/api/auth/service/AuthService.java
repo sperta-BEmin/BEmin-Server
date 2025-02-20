@@ -146,7 +146,8 @@ public class AuthService {
 
       UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
       String authToken = jwtUtil.createAccessToken(userDetails.getUsername(), userDetails.getRole());
-      return new SigninResponseDto(authToken, userDetails.getUsername(), userDetails.getNickname());
+      return new SigninResponseDto(authToken, userDetails.getUsername(), userDetails.getNickname(),
+          userDetails.getRole());
 
     } catch (BadCredentialsException e) {
       throw new SigninUnauthorizedException(ErrorCode.SIGNIN_UNAUTHORIZED_USER.getMessage());
