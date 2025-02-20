@@ -18,6 +18,7 @@ import run.bemin.api.user.exception.UserNotFoundException;
 import run.bemin.api.user.exception.UserPageIndexInvalidException;
 import run.bemin.api.user.exception.UserPageSizeInvalidException;
 import run.bemin.api.user.exception.UserRetrievalFailedException;
+import run.bemin.api.user.repository.UserAddressRepository;
 import run.bemin.api.user.repository.UserRepository;
 
 @Service
@@ -26,6 +27,7 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final UserAddressRepository userAddressRepository;
 
   /**
    * 전체 회원 조회
@@ -122,18 +124,24 @@ public class UserService {
       isUpdateRequested = true;
     }
 
-    String address = null;
-    if (requestDto.getAddress() != null && !requestDto.getAddress().trim().isEmpty()) {
-      address = requestDto.getAddress();
-      isUpdateRequested = true;
-    }
-
     // 아무 필드도 업데이트 요청이 없는 경우 예외 발생
     if (!isUpdateRequested) {
       throw new UserNoFieldUpdatedException(ErrorCode.USER_NO_FIELD_UPDATED.getMessage());
     }
 
-    user.updateUserInfo(encodePassword, nickname, phone, address);
+    user.updateUserInfo(encodePassword, nickname, phone);
     return new UserResponseDto(user);
   }
+
+  /**
+   * 회원 탈퇴
+   */
+  @Transactional
+  public void deleteUser(String userEmail, String deletedBy) {
+    User user = userRepository.findByUserEmail(userEmail)
+        .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+
+    user.delete(deletedBy);
+  }
+
 }
