@@ -28,7 +28,7 @@ import run.bemin.api.store.entity.Store;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/product")
 public class ProductController {
   private final ProductService productService;
   private final ProductValidator validator;
