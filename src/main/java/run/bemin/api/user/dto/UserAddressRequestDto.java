@@ -17,8 +17,6 @@ public class UserAddressRequestDto {
   private String jibunAddress;
   @NotBlank(message = "법정동 코드를 입력해주세요.")
   private String bcode;
-  @NotBlank(message = "국가 기초 구역 번호를 입력해주세요.")
-  private String zoneCode;
   @NotBlank(message = "상세 주소를 입력해주세요.")
   private String detail;
 }

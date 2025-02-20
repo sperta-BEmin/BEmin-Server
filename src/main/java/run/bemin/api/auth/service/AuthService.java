@@ -67,7 +67,6 @@ public class AuthService {
     // AddressDto를 사용해 UserAddress 엔티티 생성 (대표 주소로 저장)
     UserAddressDto addrDto = requestDto.getAddress();
     UserAddress userAddress = UserAddress.builder()
-        .zoneCode(addrDto.getZoneCode())
         .bcode(addrDto.getBcode())
         .jibunAddress(addrDto.getJibunAddress())
         .roadAddress(addrDto.getRoadAddress())

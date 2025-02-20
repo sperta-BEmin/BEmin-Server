@@ -1,5 +1,6 @@
 package run.bemin.api.user.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,7 +30,7 @@ import run.bemin.api.general.auditing.AuditableEntity;
 @DynamicUpdate
 public class User extends AuditableEntity {
   @Id
-  @Column(nullable = false, unique = true)
+  @Column(name = "user_email", nullable = false, unique = true)
   private String userEmail;
 
   @Column(nullable = false)
@@ -54,9 +55,12 @@ public class User extends AuditableEntity {
   @Column(name = "deleted_by")
   private String deletedBy;
 
-  @OneToMany(mappedBy = "user")
-  private List<UserAddress> addresses = new ArrayList<>();
+  // 주소 함께 저장 + 주소 함께 삭제
+  // 현재클래스To매핑클래스
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
+  private final List<UserAddress> userAddressList = new ArrayList<>();
 
+  // 대표 주소를 설정하는 메서드 (대표 주소 변경 시 사용)
   // 대표 주소를 외래 키로 참조 (p_user 테이블에 representative_address_id 컬럼 생성)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "representative_address_id")
@@ -84,11 +88,14 @@ public class User extends AuditableEntity {
   }
 
   public String getAddress() {
-    return representativeAddress != null ? representativeAddress.getRoadAddress() : null;
+    return userAddressList.stream()
+        .filter(UserAddress::getIsRepresentative)
+        .findFirst()
+        .map(UserAddress::getRoadAddress)
+        .orElse(null);
   }
 
-
-  // 대표 주소를 설정하는 메서드 (대표 주소 변경 시 사용)
+  // 대표 주소 변경을 위한 도메인 메서드 추가
   public void setRepresentativeAddress(UserAddress representativeAddress) {
     this.representativeAddress = representativeAddress;
   }

@@ -94,7 +94,6 @@ public class UserController {
       @PathVariable("userEmail") String userEmail,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    // 인증된 사용자와 요청한 이메일이 일치하는지 검증
     validateAuthenticatedUser(userEmail, userDetails);
 
     // 특정 회원의 주소 목록 조회
@@ -113,7 +112,6 @@ public class UserController {
       @RequestBody @Valid UserAddressRequestDto addressRequestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    // 인증된 사용자와 요청한 이메일이 일치하는지 검증
     validateAuthenticatedUser(userEmail, userDetails);
 
     UserAddressResponseDto addedAddress = userAddressService.addAddress(userEmail, addressRequestDto);
@@ -121,7 +119,23 @@ public class UserController {
     return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "배달 주소 추가 성공", addedAddress));
   }
 
+//  @PutMapping("/{userEmail}/addresses/{addressId}/representative")
+//  @PreAuthorize("hasAnyRole('CUSTOMER')")
+//  public ResponseEntity<ApiResponse<UserAddressResponseDto>> setRepresentativeAddress(
+//      @PathVariable("userEmail") String userEmail,
+//      @PathVariable("addressId") UUID addressId,
+//      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//
+//    validateAuthenticatedUser(userEmail, userDetails);
+//
+//    UserAddressResponseDto updatedAddress = userAddressService.setRepresentativeAddress(userEmail, addressId);
+//    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "대표 주소로 변경 성공", updatedAddress));
+//  }
 
+
+  /**
+   * 인증된 사용자와 요청한 이메일이 일치하는지 검증하는 공통 메서드
+   */
   private void validateAuthenticatedUser(String userEmail, UserDetailsImpl userDetails) {
     if (!userEmail.equals(userDetails.getUsername())) {
       throw new UserUnauthorizedException(ErrorCode.USER_UNAUTHORIZED.getMessage());

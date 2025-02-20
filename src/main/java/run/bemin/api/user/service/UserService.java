@@ -144,5 +144,4 @@ public class UserService {
     user.delete(deletedBy);
   }
 
-
 }

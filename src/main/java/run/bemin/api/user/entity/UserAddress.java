@@ -24,9 +24,6 @@ public class UserAddress {
   @Column(name = "user_address_id", unique = true, nullable = false)
   private UUID id;
 
-  @Column(name = "zone_code")
-  private String zoneCode; // 국가기초구역번호
-
   @Column(name = "bcode", nullable = false)
   private String bcode; // 법정동/법정리 코드
 
@@ -39,18 +36,17 @@ public class UserAddress {
   @Column(name = "detail", nullable = false)
   private String detail;
 
-  // 대표 주소 여부 플래그
+  // 대표 주소 여부 플래그 boolean -> Boolean
   @Column(name = "is_representative", nullable = false)
-  private boolean isRepresentative;
+  private Boolean isRepresentative = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_email")
   private User user;
 
   @Builder
-  public UserAddress(String zoneCode, String bcode, String jibunAddress, String roadAddress,
-                     String detail, boolean isRepresentative, User user) {
-    this.zoneCode = zoneCode;
+  public UserAddress(String bcode, String jibunAddress, String roadAddress,
+                     String detail, Boolean isRepresentative, User user) {
     this.bcode = bcode;
     this.jibunAddress = jibunAddress;
     this.roadAddress = roadAddress;
@@ -59,8 +55,8 @@ public class UserAddress {
     this.user = user;
   }
 
-  public void setRepresentative(boolean isRepresentative) {
-    this.isRepresentative = isRepresentative;
+  public void setRepresentative(Boolean isRepresentative) {
+    this.isRepresentative = isRepresentative != null ? isRepresentative : Boolean.FALSE;
   }
 
 }
