@@ -49,13 +49,19 @@ public class Review extends AuditableEntity {
   @Column(columnDefinition = "text")
   private String description;
 
-  private UUID deletedBy;
+  private String deletedBy;
   private LocalDateTime deletedAt;
 
   // 리뷰 수정하기
   public void updateReview(ReviewRating reviewRating, String description) {
     this.reviewRating = reviewRating;
     this.description = description;
+  }
+
+  // 리뷰 삭제하기
+  public void deletedBy(String deletedBy) {
+    this.deletedAt = LocalDateTime.now();
+    this.deletedBy = deletedBy;
   }
 
   @Builder
