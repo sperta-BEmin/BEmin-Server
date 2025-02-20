@@ -2,9 +2,11 @@ package run.bemin.api.review.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.auth.jwt.JwtUtil;
+import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.repo.OrderRepository;
 import run.bemin.api.review.domain.ReviewRating;
@@ -14,16 +16,21 @@ import run.bemin.api.review.dto.ReviewDeleteResponseDto;
 import run.bemin.api.review.dto.ReviewUpdateRequestDto;
 import run.bemin.api.review.dto.ReviewUpdateResponseDto;
 import run.bemin.api.review.entity.Review;
+import run.bemin.api.review.exception.ReviewException;
 import run.bemin.api.review.repository.ReviewRepository;
+import run.bemin.api.store.entity.Store;
+import run.bemin.api.store.repository.StoreRepository;
 import run.bemin.api.user.entity.User;
 import run.bemin.api.user.repository.UserRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
 
   private final ReviewRepository reviewRepository;
   private final OrderRepository orderRepository;
+  private final StoreRepository storeRepository;
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
 
@@ -50,8 +57,12 @@ public class ReviewService {
     User user = userRepository.findByUserEmail(userEmail)
         .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
+    Store store = storeRepository.findById(UUID.fromString(requestDto.getStoreId()))
+        .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+
     Review review = Review.builder()
         .order(order)
+        .store(store)
         .user(user)
         .reviewRating(ReviewRating.fromValue(requestDto.getReviewRating()))
         .description(requestDto.getDescription())
@@ -96,15 +107,15 @@ public class ReviewService {
 
     // 사용자 조회
     User user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ReviewException(ErrorCode.USER_LIST_NOT_FOUND));
 
     // 리뷰 조회
     Review review = reviewRepository.findById(reviewId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
 
     // 리뷰 작성자와 현재 로그인한 사용자 비교
     if (!review.getUser().equals(user)) {
-      throw new IllegalArgumentException("본인이 작성한 리뷰만 수정할 수 있습니다.");
+      throw new ReviewException(ErrorCode.REVIEW_FORBIDDEN);
     }
 
     review.deletedBy(userEmail);
@@ -112,4 +123,11 @@ public class ReviewService {
     return ReviewDeleteResponseDto.from(review);
   }
 
+  // 특정 가게의 평균 평점 계산
+  @Transactional
+  public double getAvgRatingByStore(UUID storeId) {
+    double avg = reviewRepository.findAverageRatingByStore(storeId);
+    log.info("가게 평점 : {}", avg);
+    return avg;
+  }
 }
