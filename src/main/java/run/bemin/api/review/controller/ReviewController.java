@@ -3,6 +3,10 @@ package run.bemin.api.review.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +15,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import run.bemin.api.review.dto.ReviewCreateRequestDto;
 import run.bemin.api.review.dto.ReviewCreateResponseDto;
 import run.bemin.api.review.dto.ReviewDeleteResponseDto;
 import run.bemin.api.review.dto.ReviewUpdateRequestDto;
 import run.bemin.api.review.dto.ReviewUpdateResponseDto;
+import run.bemin.api.review.entity.Review;
 import run.bemin.api.review.service.ReviewService;
 
 @RestController
@@ -24,6 +30,34 @@ import run.bemin.api.review.service.ReviewService;
 @RequiredArgsConstructor
 public class ReviewController {
   private final ReviewService reviewService;
+
+  // TODO : storeId 채워지면 완성하기
+  // 모든 리뷰에 대한 페이징 조회
+  @GetMapping("/")
+  public Page<Review> getReviews(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "createdAt") String sortBy,
+      @RequestParam(defaultValue = "desc") String direction
+  ) {
+    Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+    return reviewService.getAllReviews(pageable);
+  }
+
+  // 특정 Store의 리뷰 페이징 조회
+  @GetMapping("/{storeId}/reviews")
+  public Page<Review> getStoreReviews(
+      @PathVariable UUID storeId,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "createdAt") String sortBy,
+      @RequestParam(defaultValue = "desc") String direction
+  ) {
+    Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+    return reviewService.getReviewsByStore(storeId, pageable);
+  }
 
   // 리뷰 생성하기
   @PostMapping("/reviews")

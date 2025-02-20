@@ -3,6 +3,8 @@ package run.bemin.api.review.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.auth.jwt.JwtUtil;
@@ -72,7 +74,7 @@ public class ReviewService {
     return review;
   }
 
-  // 리뷰 작성하기
+  // 리뷰 생성
   @Transactional
   public ReviewCreateResponseDto createReview(String authToken, ReviewCreateRequestDto requestDto) {
     // JWT 토큰에서 사용자 이메일 추출
@@ -150,5 +152,11 @@ public class ReviewService {
     double avg = reviewRepository.findAverageRatingByStore(storeId);
     log.info("가게 평점 : {}", avg);
     return avg;
+  }
+
+  // 특정 가게의 리뷰 조회
+  @Transactional(readOnly = true)
+  public Page<Review> getReviewsByStore(UUID storeId, Pageable pageable) {
+    return reviewRepository.findByStore_Id(storeId, pageable);
   }
 }
