@@ -48,6 +48,28 @@ public class UserController {
   }
 
   /**
+   * 내 정보 조회
+   */
+  @GetMapping("/my-info")
+  public ResponseEntity<ApiResponse<UserResponseDto>> getMyUsers(
+      @AuthenticationPrincipal UserDetailsImpl userDetails
+  ) {
+    UserResponseDto userResponseDto = userService.getUserByUserEmail(userDetails.getUsername());
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", userResponseDto));
+  }
+
+  /**
+   * 내 정보 수정
+   */
+  @PutMapping("/my-info")
+  public ResponseEntity<ApiResponse<UserResponseDto>> updateMyInfo(
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @RequestBody @Valid UserUpdateRequestDto requestDto) {
+    UserResponseDto responseDto = userService.updateUser(userDetails.getUsername(), requestDto);
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", responseDto));
+  }
+
+  /**
    * 특정 회원 조회
    */
   @GetMapping("/{userEmail}")
