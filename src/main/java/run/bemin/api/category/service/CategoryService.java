@@ -90,7 +90,11 @@ public class CategoryService {
 
 
   @Transactional(readOnly = true)
-  public Page<CategoryDto> getAdminAllCategory(String name, Integer page, Integer size, String sortBy, Boolean isAsc) {
+  public Page<CategoryDto> getAdminAllCategory(String name,
+                                               Integer page,
+                                               Integer size,
+                                               String sortBy,
+                                               Boolean isAsc) {
     Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
     Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
@@ -106,8 +110,12 @@ public class CategoryService {
 
 
   @Transactional(readOnly = true)
-  public Page<GetCategoryResponseDto> getAllCategory(String name, Boolean isDeleted, Integer page, Integer size,
-                                                     String sortBy, Boolean isAsc) {
+  public Page<GetCategoryResponseDto> getAllCategory(String name,
+                                                     Boolean isDeleted,
+                                                     Integer page,
+                                                     Integer size,
+                                                     String sortBy,
+                                                     Boolean isAsc) {
     Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
     Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
     Boolean filterDeleted = Optional.ofNullable(isDeleted).orElse(false);
