@@ -47,9 +47,10 @@ public class UserController {
   @PreAuthorize("hasAnyRole('MASTER')")
   public ResponseEntity<ApiResponse<UserListResponseDto>> getAllUsers(
       @RequestParam(value = "page", defaultValue = "0") int page,
-      @RequestParam(value = "size", defaultValue = "10") int size) {
+      @RequestParam(value = "size", defaultValue = "10") int size,
+      @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder) {
 
-    Page<UserResponseDto> userPage = userService.getAllUsers(page - 1, size);
+    Page<UserResponseDto> userPage = userService.getAllUsers(page - 1, size, sortOrder);
 
     UserListResponseDto data = new UserListResponseDto(userPage);
 
