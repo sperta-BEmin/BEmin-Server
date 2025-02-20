@@ -87,6 +87,10 @@ public enum ErrorCode {
   PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P002", "결제 내역이 존재하지 않습니다."),
   PAYMENT_IS_CANCELED(HttpStatus.NOT_FOUND.value(), "P003", "이미 취소된 결제 내역입니다."),
 
+  // Review (리뷰 관련 오류)
+  REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "R001", "해당 리뷰를 찾을 수 없습니다."),
+  REVIEW_FORBIDDEN(HttpStatus.FORBIDDEN.value(), "R002", "본인이 작성한 리뷰만 수정할 수 있습니다."),
+
   // Order (주문 관련 오류)
   ORDER_NOT_FOUND2(HttpStatus.NOT_FOUND.value(), "OR001", "주문이 존재하지 않습니다."),
   ORDER_USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "OR002", "유저를 조회할 수 없습니다."),

@@ -16,6 +16,7 @@ import run.bemin.api.payment.domain.PaymentStatus;
 import run.bemin.api.payment.dto.CreatePaymentDto;
 import run.bemin.api.payment.dto.PaymentCancelDto;
 import run.bemin.api.payment.dto.PaymentDto;
+import run.bemin.api.payment.dto.PaymentStatusResponseDto;
 import run.bemin.api.payment.entity.Payment;
 import run.bemin.api.payment.exception.PaymentException;
 import run.bemin.api.payment.repository.PaymentRepository;
@@ -37,6 +38,17 @@ public class PaymentService {
 
     String extractToken = token.substring(7);
     return jwtUtil.getUserEmailFromToken(extractToken);
+  }
+
+  /*
+   * 메서드명 : getPaymentStatus
+   * 목적 : 결제 상태 조회
+   * */
+  public PaymentStatusResponseDto getPaymentStatus(UUID paymentId) {
+    Payment payment = paymentRepository.findById(paymentId)
+        .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
+
+    return PaymentStatusResponseDto.from(payment);
   }
 
   /*
@@ -102,5 +114,4 @@ public class PaymentService {
 
     return PaymentCancelDto.from(payment);
   }
-
 }

@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +22,8 @@ import lombok.NoArgsConstructor;
 import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.review.domain.ReviewRating;
+import run.bemin.api.review.domain.ReviewStatus;
+import run.bemin.api.store.entity.Store;
 import run.bemin.api.user.entity.User;
 
 @Entity
@@ -36,7 +39,10 @@ public class Review extends AuditableEntity {
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;
 
-  // TODO : User 와 Mapping
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "store_id", nullable = false)
+  private Store store;
+
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "userEmail", nullable = false)
   private User user;
@@ -49,6 +55,10 @@ public class Review extends AuditableEntity {
   @Column(columnDefinition = "text")
   private String description;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ReviewStatus status = ReviewStatus.ACTIVATE;
+
   private String deletedBy;
   private LocalDateTime deletedAt;
 
@@ -60,15 +70,18 @@ public class Review extends AuditableEntity {
 
   // 리뷰 삭제하기
   public void deletedBy(String deletedBy) {
+    this.status = ReviewStatus.DELETED;
     this.deletedAt = LocalDateTime.now();
     this.deletedBy = deletedBy;
   }
 
   @Builder
-  public Review(Order order, User user, ReviewRating reviewRating, String description) {
+  public Review(Order order, Store store, User user, ReviewRating reviewRating, String description) {
     this.order = order;
+    this.store = store;
     this.user = user;
     this.reviewRating = reviewRating;
     this.description = description;
+    this.status = ReviewStatus.ACTIVATE;
   }
 }
