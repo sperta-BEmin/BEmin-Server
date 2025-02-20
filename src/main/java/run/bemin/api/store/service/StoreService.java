@@ -47,11 +47,11 @@ public class StoreService {
   private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
-  public List<StoreDto> getStoresByUserEmail(String userEmail) {
-    List<Store> stores = storeRepository.findByOwner_UserEmail(userEmail);
-    return stores.stream()
+  public StoreDto getStoreByUserEmail(String userEmail) {
+    return storeRepository.findByOwner_UserEmail(userEmail).stream()
+        .findFirst()
         .map(StoreDto::fromEntity)
-        .collect(Collectors.toList());
+        .orElseThrow(() -> new StoreNotFoundException(userEmail));
   }
 
   // 카테고리 수(MAX_CATEGORY_COUNT) 검증 및 존재 여부 검증을 함께 수행
