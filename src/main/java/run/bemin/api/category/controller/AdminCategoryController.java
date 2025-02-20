@@ -58,10 +58,6 @@ public class AdminCategoryController {
         .body(ApiResponse.from(CATEGORY_CREATED.getStatus(), CATEGORY_CREATED.getMessage(), categories));
   }
 
-
-
-
-
   @PreAuthorize("not hasRole('CUSTOMER')")
   @GetMapping
   public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAdminCategories(

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import run.bemin.api.category.dto.response.GetStoreCategoryResponseDto;
+import run.bemin.api.category.dto.response.GetCategoryResponseDto;
 import run.bemin.api.store.entity.Store;
 
 public record GetStoreResponseDto(
@@ -14,18 +14,22 @@ public record GetStoreResponseDto(
     Integer minimumPrice,
     Float rating,
     GetStoreAddressResponseDto storeAddress,
-    List<GetStoreCategoryResponseDto> categories
+    List<GetCategoryResponseDto> categories,
+    String ownerEmail
 ) {
+
   public static GetStoreResponseDto fromEntity(Store store) {
     GetStoreAddressResponseDto storeAddressResponse = store.getStoreAddress() != null
         ? GetStoreAddressResponseDto.fromEntity(store.getStoreAddress())
         : null;
 
     // 소프트 삭제되지 않은 카테고리만 변환
-    List<GetStoreCategoryResponseDto> categoryResponses = store.getStoreCategories().stream()
-        .filter(sc -> !sc.getIsDeleted())
-        .map(sc -> GetStoreCategoryResponseDto.fromEntity(sc.getCategory()))
+    List<GetCategoryResponseDto> categoryResponses = store.getStoreCategories().stream()
+        .filter(sc -> !sc.isDeleted())
+        .map(sc -> GetCategoryResponseDto.fromEntity(sc.getCategory()))
         .collect(Collectors.toList());
+
+    String ownerEmail = store.getOwner() != null ? store.getOwner().getUserEmail() : null;
 
     return new GetStoreResponseDto(
         store.getId(),
@@ -34,7 +38,8 @@ public record GetStoreResponseDto(
         store.getMinimumPrice(),
         store.getRating(),
         storeAddressResponse,
-        categoryResponses
+        categoryResponses,
+        ownerEmail
     );
   }
 
@@ -43,5 +48,4 @@ public record GetStoreResponseDto(
         .map(GetStoreResponseDto::fromEntity)
         .collect(Collectors.toList());
   }
-
 }

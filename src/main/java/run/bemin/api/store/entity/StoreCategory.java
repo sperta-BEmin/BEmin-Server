@@ -34,10 +34,10 @@ public class StoreCategory extends AuditableEntity {
   private Category category;
 
   @Column(name = "is_primary", nullable = false)
-  private Boolean isPrimary;
+  private boolean isPrimary;
 
   @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted = false;
+  private boolean isDeleted = false;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
@@ -45,14 +45,14 @@ public class StoreCategory extends AuditableEntity {
   @Column(name = "deleted_by")
   private String deletedBy;
 
-  private StoreCategory(Store store, Category category, Boolean isPrimary, String createdBy) {
+  private StoreCategory(Store store, Category category, boolean isPrimary) {
     this.store = store;
     this.category = category;
-    this.isPrimary = isPrimary != null ? isPrimary : false;
+    this.isPrimary = isPrimary;
   }
 
-  public static StoreCategory create(Store store, Category category, Boolean isPrimary, String createdBy) {
-    return new StoreCategory(store, category, isPrimary, createdBy);
+  public static StoreCategory create(Store store, Category category, boolean isPrimary) {
+    return new StoreCategory(store, category, isPrimary);
   }
 
   public void softDelete(String deletedBy) {
@@ -61,15 +61,14 @@ public class StoreCategory extends AuditableEntity {
     this.deletedAt = LocalDateTime.now();
   }
 
-  public void update(String updatedBy, Boolean isPrimary) {
-    this.isPrimary = isPrimary != null ? isPrimary : this.isPrimary;
+  public void update(boolean isPrimary) {
+    this.isPrimary = isPrimary;
   }
 
-  public void restore(String updatedBy, Boolean isPrimary) {
+  public void restore(String updatedBy, boolean isPrimary) {
     this.isDeleted = false;
     this.deletedBy = null;
     this.deletedAt = null;
-    update(updatedBy, isPrimary);
+    update(isPrimary);
   }
-
 }

@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import run.bemin.api.general.auditing.AuditableEntity;
+import run.bemin.api.store.entity.Store;
 
 @Entity
 @Table(name = "p_user")
@@ -65,6 +66,9 @@ public class User extends AuditableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "representative_address_id")
   private UserAddress representativeAddress;
+
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = false)
+  private List<Store> stores = new ArrayList<>();
 
   public void updateUserInfo(
       String password,
