@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,6 @@ import run.bemin.api.user.exception.UserNotFoundException;
 import run.bemin.api.user.exception.UserPageIndexInvalidException;
 import run.bemin.api.user.exception.UserPageSizeInvalidException;
 import run.bemin.api.user.exception.UserRetrievalFailedException;
-import run.bemin.api.user.repository.UserAddressRepository;
 import run.bemin.api.user.repository.UserRepository;
 
 @Service
@@ -27,13 +27,12 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final UserAddressRepository userAddressRepository;
 
   /**
-   * 전체 회원 조회
+   * 전체 회원 조회 (생성일 기준 오름/내림차순 정렬)
    */
   @Transactional(readOnly = true)
-  public Page<UserResponseDto> getAllUsers(int page, int size) {
+  public Page<UserResponseDto> getAllUsers(int page, int size, String sortOrder) {
     if (page < 0) {
       throw new UserPageIndexInvalidException(ErrorCode.USER_PAGE_INDEX_INVALID.getMessage());
     }
@@ -41,7 +40,11 @@ public class UserService {
       throw new UserPageSizeInvalidException(ErrorCode.USER_PAGE_SIZE_INVALID.getMessage());
     }
 
-    Pageable pageable = PageRequest.of(page, size);
+    Sort sort = "asc".equalsIgnoreCase(sortOrder)
+        ? Sort.by("createdAt").ascending()
+        : Sort.by("createdAt").descending();
+
+    Pageable pageable = PageRequest.of(page, size, sort);
     Page<User> userPage;
 
     try {
@@ -63,6 +66,7 @@ public class UserService {
         user.getRole()
     ));
   }
+
 
   /**
    * 특정 회원 조회
