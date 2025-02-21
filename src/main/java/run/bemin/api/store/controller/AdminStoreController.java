@@ -43,11 +43,11 @@ public class AdminStoreController {
   private final StoreService storeService;
 
   // 이메일로 단건 가게 목록을 조회하기
-  @PreAuthorize("not hasRole('CUSTOMER') and not hasRole('OWNER')")
+  @PreAuthorize("not hasRole('CUSTOMER')")
   @GetMapping("/by-user")
   public ResponseEntity<ApiResponse<StoreDto>> getStoresByUserEmail(
-      @RequestParam("userEmail") String userEmail) {
-    StoreDto storeDtos = storeService.getStoreByUserEmail(userEmail);
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    StoreDto storeDtos = storeService.getStoreByUserEmail(userDetails.getUsername());
 
     return ResponseEntity
         .status(STORE_FETCHED.getStatus())
