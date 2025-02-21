@@ -8,16 +8,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_user_address")
-public class UserAddress {
+public class UserAddress extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,13 +38,23 @@ public class UserAddress {
   @Column(name = "detail", nullable = false)
   private String detail;
 
-  // 대표 주소 여부 플래그 boolean -> Boolean
+  // 대표 주소 여부 플래그
   @Column(name = "is_representative", nullable = false)
   private Boolean isRepresentative = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_email")
   private User user;
+  
+  @Column(name = "is_deleted", nullable = false)
+  private Boolean isDeleted = false;
+
+  // soft delete 필드 추가
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+
+  @Column(name = "deleted_by")
+  private String deletedBy;
 
   @Builder
   public UserAddress(String bcode, String jibunAddress, String roadAddress,
@@ -59,4 +71,9 @@ public class UserAddress {
     this.isRepresentative = isRepresentative != null ? isRepresentative : Boolean.FALSE;
   }
 
+  public void softDelete(String deletedBy) {
+    this.isDeleted = true;
+    this.deletedAt = LocalDateTime.now();
+    this.deletedBy = deletedBy;
+  }
 }

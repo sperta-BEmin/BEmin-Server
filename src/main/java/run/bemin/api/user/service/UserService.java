@@ -141,11 +141,11 @@ public class UserService {
    * 회원 탈퇴
    */
   @Transactional
-  public void deleteUser(String userEmail, String deletedBy) {
+  public void softDeleteUser(String userEmail, String deletedBy) {
     User user = userRepository.findByUserEmail(userEmail)
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
 
-    user.delete(deletedBy);
+    user.softDelete(deletedBy);
   }
 
 }

@@ -50,6 +50,10 @@ public class User extends AuditableEntity {
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role;
 
+  @Builder.Default
+  @Column(name = "is_deleted", nullable = false)
+  private Boolean isDeleted = false;
+
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
@@ -86,9 +90,17 @@ public class User extends AuditableEntity {
     }
   }
 
-  public void delete(String deletedBy) {
+  public void softDelete(String deletedBy) {
+    this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
     this.deletedBy = deletedBy;
+
+    // 연결된 모든 UserAddress도 soft delete 처리
+    if (userAddressList != null) {
+      for (UserAddress address : userAddressList) {
+        address.softDelete(deletedBy);
+      }
+    }
   }
 
   public String getAddress() {
