@@ -1,9 +1,13 @@
 package run.bemin.api.user.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.general.exception.ErrorCode;
@@ -61,15 +65,26 @@ public class UserAddressService {
    * 특정 회원의 주소 목록 조회
    */
   @Transactional(readOnly = true)
-  public List<UserAddressResponseDto> getAddresses(String userEmail) {
+  public Page<UserAddressResponseDto> getAllAddresses(String userEmail,
+                                                      Boolean isDeleted,
+                                                      Integer page,
+                                                      Integer size) {
+
+    // 항상 대표 주소가 맨 위에 오고, 나머지 주소들은 생성일 기준 오름차순으로 정렬
+    Sort sort = Sort.by(
+        new Sort.Order(Sort.Direction.DESC, "isRepresentative"),
+        new Sort.Order(Sort.Direction.ASC, "createdAt")
+    );
+    Pageable pageable = PageRequest.of(page, size, sort);
+    Boolean filterDeleted = Optional.ofNullable(isDeleted).orElse(false);
+
     User user = userRepository.findByUserEmail(userEmail)
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
 
-    return userAddressRepository.findByUser(user)
-        .stream()
-        .map(UserAddressResponseDto::new)
-        .collect(Collectors.toList());
+    Page<UserAddress> addressPage = userAddressRepository.findByUserAndIsDeleted(user, filterDeleted, pageable);
+    return addressPage.map(UserAddressResponseDto::fromEntity);
   }
+
 
   @Transactional
   public UserAddressResponseDto setRepresentativeAddress(String userEmail, UUID addressId) {

@@ -1,7 +1,6 @@
 package run.bemin.api.user.controller;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,17 +113,21 @@ public class UserController {
    */
   @GetMapping("/{userEmail}/addresses")
   @PreAuthorize("hasAnyRole('CUSTOMER')")
-  public ResponseEntity<ApiResponse<List<UserAddressResponseDto>>> getAddresses(
+  public ResponseEntity<ApiResponse<Page<UserAddressResponseDto>>> getAddresses(
       @PathVariable("userEmail") String userEmail,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size) {
     validateAuthenticatedUser(userEmail, userDetails);
-
-    // 특정 회원의 주소 목록 조회
-    List<UserAddressResponseDto> addresses = userAddressService.getAddresses(userEmail);
+    Page<UserAddressResponseDto> addresses = userAddressService.getAllAddresses(
+        userEmail,
+        false,
+        page,
+        size);
 
     return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "주소 목록 조회 성공", addresses));
   }
+
 
   /**
    * 배달 주소 추가
