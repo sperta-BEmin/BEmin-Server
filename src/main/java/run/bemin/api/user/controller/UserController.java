@@ -24,7 +24,6 @@ import run.bemin.api.general.response.ApiResponse;
 import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.user.dto.UserAddressRequestDto;
 import run.bemin.api.user.dto.UserAddressResponseDto;
-import run.bemin.api.user.dto.UserListResponseDto;
 import run.bemin.api.user.dto.UserResponseDto;
 import run.bemin.api.user.dto.UserUpdateRequestDto;
 import run.bemin.api.user.exception.UserUnauthorizedException;
@@ -45,16 +44,19 @@ public class UserController {
    */
   @GetMapping
   @PreAuthorize("hasAnyRole('MASTER')")
-  public ResponseEntity<ApiResponse<UserListResponseDto>> getAllUsers(
-      @RequestParam(value = "page", defaultValue = "0") int page,
-      @RequestParam(value = "size", defaultValue = "10") int size,
-      @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder) {
-
-    Page<UserResponseDto> userPage = userService.getAllUsers(page - 1, size, sortOrder);
-
-    UserListResponseDto data = new UserListResponseDto(userPage);
-
-    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", data));
+  public ResponseEntity<ApiResponse<Page<UserResponseDto>>> getAllUsers(
+      @RequestParam(value = "page", defaultValue = "0") Integer page,
+      @RequestParam(value = "size", defaultValue = "10") Integer size,
+      @RequestParam(value = "isDeleted", required = false) Boolean isDeleted
+  ) {
+    Page<UserResponseDto> users = userService.getAllUsers(
+        isDeleted,
+        page,
+        size,
+        "createdAt",
+        true
+    );
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", users));
   }
 
   /**
