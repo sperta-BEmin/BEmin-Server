@@ -8,13 +8,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -22,9 +21,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.validator.constraints.ISBN;
 import run.bemin.api.category.entity.Category;
 import run.bemin.api.general.auditing.AuditableEntity;
+import run.bemin.api.product.entity.Product;
+import run.bemin.api.review.entity.Review;
+import run.bemin.api.user.entity.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -50,15 +51,27 @@ public class Store extends AuditableEntity {
   private boolean isActive = true;
 
   @Column(name = "rating")
-  private Float rating;
+  private Float rating = 0.0F;
 
-  // Cascade 옵션 추가 (주소와 함께 저장)
+  // 가게 주소와 연관 (Cascade 옵션을 통해 주소 생명주기를 함께 관리)
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "store_address_id")
   private StoreAddress storeAddress;
 
+  // 소유자(User)와의 명시적 연관관계; User 엔티티의 기본키(예: userEmail)를 기준으로 매핑
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "owner_email", nullable = false)
+  private User owner;
+
+  // 가게와 카테고리 간의 연결 (StoreCategory 엔티티를 통해 다대다 관계 관리)
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
   private final List<StoreCategory> storeCategories = new ArrayList<>();
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
+  private final List<Review> reviews = new ArrayList<>();
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = false)
+  private final List<Product> products = new ArrayList<>();
 
   @Column(name = "is_deleted", nullable = false)
   @ColumnDefault("false")
@@ -70,60 +83,81 @@ public class Store extends AuditableEntity {
   @Column(name = "deleted_by")
   private String deletedBy;
 
-  @Column(name = "user_email", nullable = false)
-  private String userEmail;
-
   @Builder
-  public Store(
-      String name,
-      String phone,
-      Integer minimumPrice,
-      boolean isActive,
-      StoreAddress storeAddress,
-      String userEmail
-  ) {
+  public Store(String name,
+               String phone,
+               Integer minimumPrice,
+               boolean isActive,
+               StoreAddress storeAddress,
+               User owner) {
     this.name = name;
     this.phone = phone;
     this.minimumPrice = minimumPrice;
     this.isActive = isActive;
     this.storeAddress = storeAddress;
-    this.userEmail = userEmail;
+    this.owner = owner;
   }
 
-  public static Store create(
-      String name,
-      String phone,
-      Integer minimumPrice,
-      boolean isActive,
-      StoreAddress storeAddress,
-      String userEmail
-  ) {
+  public static Store create(String name,
+                             String phone,
+                             Integer minimumPrice,
+                             boolean isActive,
+                             StoreAddress storeAddress,
+                             User owner) {
     return Store.builder()
         .name(name)
         .phone(phone)
         .minimumPrice(minimumPrice)
         .isActive(isActive)
         .storeAddress(storeAddress)
-        .userEmail(userEmail)
+        .owner(owner)
         .build();
   }
 
-  // 카테고리 연결을 위한 헬퍼 메서드 (첫번째 카테고리는 primary 로 설정)
+
+   // 카테고리 연결 헬퍼 메서드. 첫 번째 추가되는 카테고리를 primary 로 설정
   public void addCategory(Category category, String createdBy) {
     boolean isPrimary = this.storeCategories.isEmpty();
-    StoreCategory storeCategory = StoreCategory.create(this, category, isPrimary, createdBy);
+    StoreCategory storeCategory = StoreCategory.create(this, category, isPrimary);
     this.storeCategories.add(storeCategory);
   }
 
-  // 업데이트용 메서드 (setter 대신 엔티티 내부에서 처리)
-  public void update(String name, String phone, Integer minimumPrice, Boolean isActive, String userEmail) {
+
+   // 가게 정보를 업데이트
+  public void update(String name, String phone, Integer minimumPrice, Boolean isActive, User owner) {
     this.name = name;
     this.phone = phone;
     this.minimumPrice = minimumPrice;
     this.isActive = isActive;
-    this.userEmail = userEmail;
+    this.owner = owner;
   }
 
+  // 가게 활성화 여부 업데이트
+  public void updateIsActive(Boolean isActive) {
+    this.isActive = isActive;
+  }
+
+  // 가게 최소금액 업데이트
+  public void updateMinimumPrice(Integer minimumPrice) {
+    this.minimumPrice = minimumPrice;
+  }
+
+  // 가게 이름 업데이트
+  public void updateName(String name) {
+    this.name = name;
+  }
+
+  // 가게 주인 업데이트
+  public void updateOwner(User newOwner) {
+    this.owner = newOwner;
+  }
+  
+  // 가게 전화번호 업데이트
+  public void updatePhone(String newPhone) {
+    this.phone = newPhone;
+  }
+
+  // 소프트 삭제 처리: 삭제 플래그 및 삭제 시간, 삭제자 정보를 기록
   public void softDelete(String deletedBy) {
     this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
@@ -131,39 +165,38 @@ public class Store extends AuditableEntity {
   }
 
 
+
+   // 카테고리 업데이트: 새로운 카테고리 목록에 따라 기존 연결을 소프트 삭제, 업데이트 또는 신규 추가
   public void updateCategories(List<Category> newCategories, String currentUser) {
-    // 새 목록을 빠르게 확인하기 위한 Map 생성 (Category ID -> Category)
-    Map<UUID, Category> newCategoryMap = newCategories.stream()
+    var newCategoryMap = newCategories.stream()
         .collect(Collectors.toMap(Category::getId, category -> category));
 
-    // 1. 기존 연결 중, 새 목록에 없는 항목은 소프트 삭제 처리
+    // 기존 연결 중 새 목록에 없는 항목은 소프트 삭제 처리
     for (StoreCategory storeCategory : storeCategories) {
-      if (!newCategoryMap.containsKey(storeCategory.getCategory().getId()) && !storeCategory.getIsDeleted()) {
+      if (!newCategoryMap.containsKey(storeCategory.getCategory().getId()) && !storeCategory.isDeleted()) {
         storeCategory.softDelete(currentUser);
       }
     }
 
-    // 2. 새 목록에 대해, 기존 연결이 있으면 업데이트(또는 복원), 없으면 추가
+    // 새 목록에 대해, 기존 연결이 있으면 업데이트(또는 복원), 없으면 신규 연결 추가
     for (int i = 0; i < newCategories.size(); i++) {
       Category newCategory = newCategories.get(i);
-      boolean isPrimary = (i == 0); // 첫 번째 카테고리를 primary 로 설정
-      Optional<StoreCategory> existingOpt = storeCategories.stream()
+      boolean isPrimary = (i == 0);
+      var existingOpt = storeCategories.stream()
           .filter(sc -> sc.getCategory().getId().equals(newCategory.getId()))
           .findFirst();
 
       if (existingOpt.isPresent()) {
         StoreCategory sc = existingOpt.get();
-        if (sc.getIsDeleted()) {
-          sc.restore(currentUser, isPrimary);  // 소프트 삭제된 항목이면 복원
+        if (sc.isDeleted()) {
+          sc.restore(currentUser, isPrimary);
         } else {
-          sc.update(currentUser, isPrimary); // 이미 활성화된 항목이면 primary 플래그만 업데이트
+          sc.update(isPrimary);
         }
       } else {
-        // 신규 연결 생성 및 추가
-        StoreCategory newSC = StoreCategory.create(this, newCategory, isPrimary, currentUser);
+        StoreCategory newSC = StoreCategory.create(this, newCategory, isPrimary);
         storeCategories.add(newSC);
       }
     }
   }
 }
- 

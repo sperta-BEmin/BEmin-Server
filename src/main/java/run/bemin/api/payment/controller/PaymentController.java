@@ -18,6 +18,7 @@ import run.bemin.api.general.response.ApiResponse;
 import run.bemin.api.payment.dto.CreatePaymentDto;
 import run.bemin.api.payment.dto.PaymentCancelDto;
 import run.bemin.api.payment.dto.PaymentDto;
+import run.bemin.api.payment.dto.PaymentStatusResponseDto;
 import run.bemin.api.payment.service.PaymentService;
 
 @Slf4j
@@ -27,6 +28,14 @@ import run.bemin.api.payment.service.PaymentService;
 public class PaymentController {
 
   private final PaymentService paymentService;
+
+  @GetMapping("/payments/status")
+  public ResponseEntity<ApiResponse<PaymentStatusResponseDto>> getPaymentStatus(
+      @RequestParam UUID paymentId) {
+    PaymentStatusResponseDto response = paymentService.getPaymentStatus(paymentId);
+
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", response));
+  }
 
   @GetMapping("/user/payments")
   public ResponseEntity<ApiResponse<List<PaymentDto>>> getUserPayments(HttpServletRequest request) {

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.order.dto.request.CancelOrderRequest;
@@ -19,6 +20,7 @@ import run.bemin.api.order.entity.OrderAddress;
 import run.bemin.api.order.entity.OrderDetail;
 import run.bemin.api.order.entity.OrderDomainService;
 import run.bemin.api.order.entity.OrderType;
+import run.bemin.api.order.exception.OrderCantCancelled;
 import run.bemin.api.order.exception.OrderNotFoundException;
 import run.bemin.api.order.repo.OrderDetailRepository;
 import run.bemin.api.order.repo.OrderRepository;
@@ -70,6 +72,26 @@ public class OrderService {
   }
 
   /**
+   * 하나의 주문 내역 조회
+   */
+  @Transactional(readOnly = true)
+  public ReadOrderResponse getOrderById(UUID orderId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new OrderNotFoundException(orderId));
+    return ReadOrderResponse.builder()
+        .orderId(order.getOrderId())
+        .storeId(order.getStoreId())
+        .storeName(order.getStoreName())
+        .orderType(order.getOrderType().getCode())
+        .orderStatus(order.getOrderStatus().getCode())
+        .orderAddress(order.getOrderAddress())
+        .cancelled(order.getCancelled())
+        .createdAt(order.getCreatedAt())
+        .totalPrice(order.getTotalPrice())
+        .build();
+  }
+
+  /**
    * 사용자의 주문 내역 조회(페이징 처리)
    *
    * @param userEmail 사용자 EMAIL (JWT에서 추출된 PK)
@@ -78,8 +100,9 @@ public class OrderService {
    * @return 페이징 처리되어 반환되는 주문 목록
    */
   @Transactional(readOnly = true)
-  public PagesResponse<ReadOrderResponse> getOrdersByUserEmail(String userEmail, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
+  public PagesResponse<ReadOrderResponse> getOrdersByUserEmail(String userEmail, int page, int size, String sortOrder) {
+    Sort sort = sortOrder.equals("asc") ? Sort.by("createdAt").ascending() : Sort.by("createdAt").descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     Page<Order> orders = orderRepository.findAllByUser_UserEmail(userEmail, pageable);
 
     // Order -> OrderResponse 변환
@@ -91,6 +114,9 @@ public class OrderService {
             .orderType(order.getOrderType().getCode())
             .orderStatus(order.getOrderStatus().getCode())
             .orderAddress(order.getOrderAddress())
+            .cancelled(order.getCancelled())
+            .createdAt(order.getCreatedAt())
+            .totalPrice(order.getTotalPrice())
             .build())
         .toList();
 
@@ -99,6 +125,7 @@ public class OrderService {
         .data(data)
         .pageNumber(orders.getNumber())
         .pageSize(orders.getSize())
+        .totalPages(orders.getTotalPages())
         .totalElements(orders.getTotalPages())
         .build();
   }
@@ -128,29 +155,32 @@ public class OrderService {
    * @param req // orderId, orderStatus, riderTel
    * @return // 수정된 주문 객체
    */
+//  @Transactional
+//  public void updateOrder(UpdateOrderRequest req) {
+//    // 1. Order 객체 찾기
+//    Order order = orderRepository.findById(req.getOrderId())
+//        .orElseThrow(() -> new OrderNotFoundException(req.getOrderId()));
+//
+//    // 2. 도메인 서비스로 비즈니스 로직 실행
+//    orderDomainService.updateOrder(order, req);
+//
+//    // 3. update 저장 및 반환
+//    return orderRepository.save(order);
+//  }
+
   @Transactional
-  public Order updateOrder(UpdateOrderRequest req) {
+  public void cancelOrder(CancelOrderRequest req) {
     // 1. Order 객체 찾기
     Order order = orderRepository.findById(req.getOrderId())
         .orElseThrow(() -> new OrderNotFoundException(req.getOrderId()));
 
-    // 2. 도메인 서비스로 비즈니스 로직 실행
-    orderDomainService.updateOrder(order, req);
-
-    // 3. update 저장 및 반환
-    return orderRepository.save(order);
+    // 2. 비즈니스 로직 실행 - 고객은 주문 확인 중(10)일 때만 취소 가능
+    if (order.getOrderStatus().getCode() == 10) {
+      orderDomainService.cancelOrder(order);
+      orderRepository.save(order); // 변경된 주문 상태 저장
+    } else {
+      throw new OrderCantCancelled("Order Cancellation Not Allowed");
+    }
   }
 
-  @Transactional
-  public Order cancelOrder(CancelOrderRequest req) {
-    // 1. Order객체 찾기
-    Order order = orderRepository.findById(req.getOrderId())
-        .orElseThrow(() -> new OrderNotFoundException(req.getOrderId()));
-
-    // 2. 도메인 서비스 비즈니스 로직 실행
-    orderDomainService.cancelOrder(order);
-
-    // 3. 취소 상태 저장
-    return orderRepository.save(order);
-  }
 }

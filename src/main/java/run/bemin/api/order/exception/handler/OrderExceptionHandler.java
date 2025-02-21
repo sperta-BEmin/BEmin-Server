@@ -1,5 +1,6 @@
 package run.bemin.api.order.exception.handler;
 
+import static run.bemin.api.general.exception.ErrorCode.ORDER_CANT_CANCELLED;
 import static run.bemin.api.general.exception.ErrorCode.ORDER_INVALID_STATUS_CODE;
 import static run.bemin.api.general.exception.ErrorCode.ORDER_INVALID_TYPE_CODE;
 import static run.bemin.api.general.exception.ErrorCode.ORDER_NOT_FOUND2;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import run.bemin.api.general.exception.ErrorResponse;
 import run.bemin.api.general.exception.ErrorResponse.FieldError;
+import run.bemin.api.order.exception.OrderCantCancelled;
 import run.bemin.api.order.exception.OrderNotFoundException;
 import run.bemin.api.order.exception.OrderNullException;
 import run.bemin.api.order.exception.OrderStatusException;
@@ -51,5 +53,11 @@ public class OrderExceptionHandler {
   public ResponseEntity<ErrorResponse> OrderUserNotFoundException(OrderUserNotFoundException e) {
     return ResponseEntity.status(ORDER_USER_NOT_FOUND.getStatus())
         .body(ErrorResponse.of(ORDER_USER_NOT_FOUND));
+  }
+
+  @ExceptionHandler(OrderCantCancelled.class)
+  public ResponseEntity<ErrorResponse> OrderCantCancelledException(OrderCantCancelled e) {
+    return ResponseEntity.status(ORDER_CANT_CANCELLED.getStatus())
+        .body(ErrorResponse.of(ORDER_CANT_CANCELLED));
   }
 }

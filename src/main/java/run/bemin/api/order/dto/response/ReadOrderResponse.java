@@ -1,5 +1,6 @@
 package run.bemin.api.order.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +15,8 @@ public class ReadOrderResponse {
   private Integer orderType;
   private Integer orderStatus;
   private OrderAddress orderAddress;
+  private LocalDateTime createdAt;
+  private Boolean cancelled;
   private String riderTel;
+  private int totalPrice;
 }

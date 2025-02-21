@@ -1,5 +1,6 @@
 package run.bemin.api.order.repo;
 
+import java.time.LocalDate;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,5 +15,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
    */
   @Query("SELECT o FROM Order o WHERE o.deleted = false AND o.user.userEmail = :userEmail")
   Page<Order> findAllByUser_UserEmail(@Param("userEmail") String userEmail, Pageable pageable);
+
+  @Query("SELECT o FROM Order o WHERE o.storeId = :storeId AND CAST(o.createdAt AS DATE) = :orderDate ORDER BY o.createdAt DESC")
+  Page<Order> findByStoreIdAndOrderDate(@Param("storeId") UUID storeId, @Param("orderDate") LocalDate orderDate, Pageable pageable);
 
 }
