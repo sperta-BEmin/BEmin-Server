@@ -1,8 +1,11 @@
 package run.bemin.api.review.service;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.auth.jwt.JwtUtil;
@@ -10,9 +13,12 @@ import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.order.entity.Order;
 import run.bemin.api.order.repo.OrderRepository;
 import run.bemin.api.review.domain.ReviewRating;
+import run.bemin.api.review.dto.PageInfoDto;
+import run.bemin.api.review.dto.PagedReviewResponseDto;
 import run.bemin.api.review.dto.ReviewCreateRequestDto;
 import run.bemin.api.review.dto.ReviewCreateResponseDto;
 import run.bemin.api.review.dto.ReviewDeleteResponseDto;
+import run.bemin.api.review.dto.ReviewResponseDto;
 import run.bemin.api.review.dto.ReviewUpdateRequestDto;
 import run.bemin.api.review.dto.ReviewUpdateResponseDto;
 import run.bemin.api.review.entity.Review;
@@ -72,7 +78,25 @@ public class ReviewService {
     return review;
   }
 
-  // 리뷰 작성하기
+  // 특정 가게 리뷰 페이징 처리
+  public PagedReviewResponseDto getPagedReviewsByStore(UUID storeId, Pageable pageable) {
+    Page<ReviewResponseDto> reviewsPage = reviewRepository.findReviewsByStoreId(storeId, pageable);
+
+    // 리뷰 목록
+    List<ReviewResponseDto> reviews = reviewsPage.getContent();
+
+    // 페이징 정보
+    PageInfoDto pageInfo = new PageInfoDto(
+        reviewsPage.getSize(),
+        reviewsPage.getNumber(),
+        reviewsPage.getTotalElements(),
+        reviewsPage.getTotalPages()
+    );
+
+    return new PagedReviewResponseDto(storeId, reviews, pageInfo);
+  }
+
+  // 리뷰 생성
   @Transactional
   public ReviewCreateResponseDto createReview(String authToken, ReviewCreateRequestDto requestDto) {
     // JWT 토큰에서 사용자 이메일 추출
@@ -84,6 +108,8 @@ public class ReviewService {
     User user = getUser(userEmail);
 
     Store store = getStore(requestDto);
+
+    log.info("리뷰 저장할 떄 description : {}", requestDto.getDescription());
 
     Review review = Review.builder()
         .order(order)
