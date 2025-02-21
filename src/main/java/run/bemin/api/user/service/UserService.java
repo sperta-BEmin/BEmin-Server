@@ -16,8 +16,6 @@ import run.bemin.api.user.exception.UserDuplicateNicknameException;
 import run.bemin.api.user.exception.UserListNotFoundException;
 import run.bemin.api.user.exception.UserNoFieldUpdatedException;
 import run.bemin.api.user.exception.UserNotFoundException;
-import run.bemin.api.user.exception.UserPageIndexInvalidException;
-import run.bemin.api.user.exception.UserPageSizeInvalidException;
 import run.bemin.api.user.exception.UserRetrievalFailedException;
 import run.bemin.api.user.repository.UserRepository;
 
@@ -32,23 +30,21 @@ public class UserService {
    * 전체 회원 조회 (생성일 기준 오름/내림차순 정렬)
    */
   @Transactional(readOnly = true)
-  public Page<UserResponseDto> getAllUsers(int page, int size, String sortOrder) {
-    if (page < 0) {
-      throw new UserPageIndexInvalidException(ErrorCode.USER_PAGE_INDEX_INVALID.getMessage());
-    }
-    if (size <= 0) {
-      throw new UserPageSizeInvalidException(ErrorCode.USER_PAGE_SIZE_INVALID.getMessage());
-    }
+  public Page<UserResponseDto> getAllUsers(Boolean isDeleted,
+                                           Integer page,
+                                           Integer size,
+                                           String sortBy,
+                                           Boolean isAsc) {
+    Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-    Sort sort = "asc".equalsIgnoreCase(sortOrder)
-        ? Sort.by("createdAt").ascending()
-        : Sort.by("createdAt").descending();
-
-    Pageable pageable = PageRequest.of(page, size, sort);
     Page<User> userPage;
-
     try {
-      userPage = userRepository.findAll(pageable);
+      if (isDeleted == null) {
+        userPage = userRepository.findAll(pageable);
+      } else {
+        userPage = userRepository.findByIsDeleted(isDeleted, pageable);
+      }
     } catch (Exception e) {
       throw new UserRetrievalFailedException(ErrorCode.USER_RETRIEVAL_FAILED.getMessage());
     }
@@ -57,14 +53,7 @@ public class UserService {
       throw new UserListNotFoundException(ErrorCode.USER_LIST_NOT_FOUND.getMessage());
     }
 
-    return userPage.map(user -> new UserResponseDto(
-        user.getUserEmail(),
-        user.getName(),
-        user.getNickname(),
-        user.getPhone(),
-        user.getAddress(),
-        user.getRole()
-    ));
+    return userPage.map(UserResponseDto::fromEntity);
   }
 
 
@@ -80,7 +69,8 @@ public class UserService {
             user.getNickname(),
             user.getPhone(),
             user.getAddress(),
-            user.getRole()
+            user.getRole(),
+            user.getIsDeleted()
         ))
         .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
   }

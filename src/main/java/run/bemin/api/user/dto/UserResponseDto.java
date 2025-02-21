@@ -14,6 +14,7 @@ public class UserResponseDto {
   private String phone;
   private String representativeAddress; // 대표 주소
   private UserRoleEnum role;
+  private Boolean isDeleted;
 
   public UserResponseDto(User user) {
     this.userEmail = user.getUserEmail();
@@ -21,9 +22,15 @@ public class UserResponseDto {
     this.nickname = user.getNickname();
     this.phone = user.getPhone();
     this.role = user.getRole();
-    // 대표 주소를 representativeAddress에서 가져옴 (null 체크 포함)
+    // 대표 주소 가져오기 (null 체크 포함)
     this.representativeAddress = user.getRepresentativeAddress() != null
         ? user.getRepresentativeAddress().getRoadAddress()
         : null;
+    // isDeleted 값 설정 (User 엔티티에 해당 getter가 있어야 함)
+    this.isDeleted = user.getIsDeleted();
+  }
+
+  public static UserResponseDto fromEntity(User user) {
+    return new UserResponseDto(user);
   }
 }

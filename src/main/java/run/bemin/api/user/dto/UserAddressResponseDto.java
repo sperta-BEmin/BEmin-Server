@@ -20,6 +20,9 @@ public class UserAddressResponseDto {
     this.roadAddress = address.getRoadAddress();
     this.detail = address.getDetail();
     this.isRepresentative = address.getIsRepresentative();
-
+  }
+  
+  public static UserAddressResponseDto fromEntity(UserAddress address) {
+    return new UserAddressResponseDto(address);
   }
 }
