@@ -102,9 +102,9 @@ public class UserController {
 
   @DeleteMapping("/{userEmail}")
   @PreAuthorize("hasAnyRole('CUSTOMER','OWNER','MANAGER','MASTER')")
-  public ResponseEntity<?> deleteUser(@PathVariable String userEmail,
-                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    userService.deleteUser(userEmail, userDetails.getUsername());
+  public ResponseEntity<?> softDeleteUser(@PathVariable String userEmail,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    userService.softDeleteUser(userEmail, userDetails.getUsername());
     return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "성공", userEmail));
   }
 
@@ -141,6 +141,10 @@ public class UserController {
 
     return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "배달 주소 추가 성공", addedAddress));
   }
+
+  /**
+   * 대표 배달 주소로 변경
+   */
 
 //  @PutMapping("/{userEmail}/addresses/{addressId}/representative")
 //  @PreAuthorize("hasAnyRole('CUSTOMER')")
