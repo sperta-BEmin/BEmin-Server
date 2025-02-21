@@ -92,7 +92,11 @@ public enum ErrorCode {
   ORDER_USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "OR002", "유저를 조회할 수 없습니다."),
   ORDER_INVALID_STATUS_CODE(HttpStatus.BAD_REQUEST.value(), "OR003", "잘못된 주문 요청입니다."),
   ORDER_INVALID_TYPE_CODE(HttpStatus.BAD_REQUEST.value(), "OR004", "잘못된 상태 변경 요청입니다."),
-  ORDER_NULL_VALUE(HttpStatus.BAD_REQUEST.value(), "OR005", "빈 값이 입력되었습니다.");
+  ORDER_NULL_VALUE(HttpStatus.BAD_REQUEST.value(), "OR005", "빈 값이 입력되었습니다."),
+
+  // Image (S3 및 이미지 최적화)
+  S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR.value(),"IM001","이미지 업로드에 실패했습니다."),
+  S3_INVALID_FORMAT(HttpStatus.BAD_REQUEST.value(),"IM002","데이터 형식이 올바르지 않습니다.");
 
 
   private final int status;
