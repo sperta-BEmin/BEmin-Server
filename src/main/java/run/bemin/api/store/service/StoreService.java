@@ -51,7 +51,7 @@ public class StoreService {
     return storeRepository.findByOwner_UserEmail(userEmail).stream()
         .findFirst()
         .map(StoreDto::fromEntity)
-        .orElseThrow(() -> new StoreNotFoundException(userEmail));
+        .orElse(null); // 가게가 없다면 null 반환하기
   }
 
   // 카테고리 수(MAX_CATEGORY_COUNT) 검증 및 존재 여부 검증을 함께 수행
