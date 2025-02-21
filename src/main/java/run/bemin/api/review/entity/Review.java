@@ -43,11 +43,11 @@ public class Review extends AuditableEntity {
   @JoinColumn(name = "store_id", nullable = false)
   private Store store;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "userEmail", nullable = false)
   private User user;
 
-  @Enumerated(EnumType.STRING)
+  @Enumerated(EnumType.ORDINAL)
   @Column(nullable = false)
   private ReviewRating reviewRating;
 
@@ -57,7 +57,7 @@ public class Review extends AuditableEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ReviewStatus status = ReviewStatus.ACTIVATE;
+  private ReviewStatus status = ReviewStatus.ACTIVE;
 
   private String deletedBy;
   private LocalDateTime deletedAt;
@@ -82,6 +82,6 @@ public class Review extends AuditableEntity {
     this.user = user;
     this.reviewRating = reviewRating;
     this.description = description;
-    this.status = ReviewStatus.ACTIVATE;
+    this.status = ReviewStatus.ACTIVE;
   }
 }

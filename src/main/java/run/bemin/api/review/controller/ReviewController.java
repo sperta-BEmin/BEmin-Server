@@ -63,7 +63,7 @@ public class ReviewController {
   }
 
   // 리뷰 평점
-  @GetMapping("/review/rating")
+  @GetMapping("/review/rating/{storeId}")
   public double getAvgRating(@PathVariable UUID storeId) {
     double avg = reviewService.getAvgRatingByStore(storeId);
     return avg;

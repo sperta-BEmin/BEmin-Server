@@ -72,7 +72,7 @@ public class ReviewService {
     return review;
   }
 
-  // 리뷰 생성
+  // 리뷰 작성하기
   @Transactional
   public ReviewCreateResponseDto createReview(String authToken, ReviewCreateRequestDto requestDto) {
     // JWT 토큰에서 사용자 이메일 추출
