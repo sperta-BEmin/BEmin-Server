@@ -1,5 +1,6 @@
 package run.bemin.api.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -62,6 +63,7 @@ public class User extends AuditableEntity {
 
   // 주소 함께 저장 + 주소 함께 삭제
   // 현재클래스To매핑클래스
+  @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
   private final List<UserAddress> userAddressList = new ArrayList<>();
 
