@@ -53,10 +53,7 @@ public class ProductController {
   public ApiResponse<Page<ProductSearchDto>> getProductsByStoreId(@PathVariable String storeId,
                                                                   @RequestParam("page") int page,
                                                                   @RequestParam("size") int size) {
-    UUID storeUUID = UUID.fromString(storeId);
-    Store store = validator.isStoreOwner(storeUUID);
-
-    Page<ProductSearchDto> products = productService.getProducts(store, page, size);
+    Page<ProductSearchDto> products = productService.getProducts(storeId, page, size);
     return ApiResponse.from(HttpStatus.OK, "성공", products);
   }
 

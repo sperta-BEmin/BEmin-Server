@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.comment.repository.CommentRepository;
+import run.bemin.api.image.util.UrlUtil;
 import run.bemin.api.product.dto.ProductSearchDto;
 import run.bemin.api.product.dto.UpdateProductDetailDto;
 import run.bemin.api.product.entity.Product;
@@ -24,7 +25,9 @@ import run.bemin.api.store.repository.StoreRepository;
 @Transactional(readOnly = true)
 public class ProductService {
 
+  private final UrlUtil urlUtil;
   private final ProductValidator validator;
+
   private final ProductRepository productRepository;
   private final StoreRepository storeRepository;
   private final CommentRepository commentRepository;
@@ -35,15 +38,17 @@ public class ProductService {
         .store(store)
         .price(price)
         .title(title)
-        .comment(comment)
-        .imageUrl(imageUrl)
         .build();
+
+    if(!comment.isEmpty()){ product.updateComment(comment); }
+    if(!imageUrl.isEmpty()){ product.updateImageUrl(urlUtil.getFoodImgAndUploadImg(imageUrl)); }
+
     productRepository.save(product);
   }
 
-  public Page<ProductSearchDto> getProducts(Store store, int page, int size) {
+  public Page<ProductSearchDto> getProducts(String storeId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    return productRepository.findByStoreId(store.getId(), pageable);
+    return productRepository.findByStoreId(UUID.fromString(storeId), pageable);
   }
 
   @Transactional
