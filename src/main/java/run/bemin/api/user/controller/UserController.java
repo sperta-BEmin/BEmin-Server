@@ -2,6 +2,7 @@ package run.bemin.api.user.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -146,27 +147,37 @@ public class UserController {
    * 대표 배달 주소로 변경
    */
 
-//  @PutMapping("/{userEmail}/addresses/{addressId}/representative")
-//  @PreAuthorize("hasAnyRole('CUSTOMER')")
-//  public ResponseEntity<ApiResponse<UserAddressResponseDto>> setRepresentativeAddress(
-//      @PathVariable("userEmail") String userEmail,
-//      @PathVariable("addressId") UUID addressId,
-//      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//
-//    validateAuthenticatedUser(userEmail, userDetails);
-//
-//    UserAddressResponseDto updatedAddress = userAddressService.setRepresentativeAddress(userEmail, addressId);
-//    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "대표 주소로 변경 성공", updatedAddress));
-//  }
+  @PutMapping("/{userEmail}/addresses/{addressId}/representative")
+  @PreAuthorize("hasAnyRole('CUSTOMER')")
+  public ResponseEntity<ApiResponse<UserAddressResponseDto>> setRepresentativeAddress(
+      @PathVariable("userEmail") String userEmail,
+      @PathVariable("addressId") UUID addressId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    validateAuthenticatedUser(userEmail, userDetails);
+
+    UserAddressResponseDto updatedAddress = userAddressService.setRepresentativeAddress(userEmail, addressId);
+    return ResponseEntity.ok(ApiResponse.from(HttpStatus.OK, "대표 주소로 변경 성공", updatedAddress));
+  }
 
 
   /**
    * 인증된 사용자와 요청한 이메일이 일치하는지 검증하는 공통 메서드
    */
   private void validateAuthenticatedUser(String userEmail, UserDetailsImpl userDetails) {
+    // 검증 전 로그 추가
+    log.info("validateAuthenticatedUser - 시작: path userEmail={}, authenticated user={}", userEmail,
+        userDetails.getUsername());
+
     if (!userEmail.equals(userDetails.getUsername())) {
+      log.error("validateAuthenticatedUser - 실패: path userEmail={}, authenticated user={}", userEmail,
+          userDetails.getUsername());
       throw new UserUnauthorizedException(ErrorCode.USER_UNAUTHORIZED.getMessage());
     }
+
+    // 검증 통과 후 로그 추가
+    log.info("validateAuthenticatedUser - 성공: 사용자 인증 완료");
   }
+
 
 }
