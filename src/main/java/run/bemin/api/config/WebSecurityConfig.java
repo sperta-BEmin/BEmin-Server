@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,7 +20,7 @@ import run.bemin.api.security.UserDetailsServiceImpl;
 @Slf4j
 @Configuration
 @EnableWebSecurity // Spring Security 지원을 가능하게 함
-@EnableGlobalMethodSecurity(prePostEnabled = true) // @PreAuthorize를 통한 API 접근 제어 활성화 (개발/테스트용)
+//@EnableGlobalMethodSecurity(prePostEnabled = true) // @PreAuthorize를 통한 API 접근 제어 활성화 (개발/테스트용)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
