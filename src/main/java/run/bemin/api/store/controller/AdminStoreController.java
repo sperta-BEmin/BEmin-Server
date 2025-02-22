@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import run.bemin.api.category.dto.request.UpdateMinimumPriceRequestDto;
+import run.bemin.api.category.dto.request.UpdateStoreNameRequestDto;
 import run.bemin.api.general.response.ApiResponse;
 import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.store.dto.StoreDto;
@@ -42,23 +44,23 @@ public class AdminStoreController {
 
   private final StoreService storeService;
 
-  // 이메일로 단건 가게 목록을 조회하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 메일로 단건 가게 목록을 조회하기
+  @PreAuthorize("hasRole('MASTER')")
   @GetMapping("/by-user")
   public ResponseEntity<ApiResponse<StoreDto>> getStoresByUserEmail(
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    StoreDto storeDtos = storeService.getStoreByUserEmail(userDetails.getUsername());
+    StoreDto storeDto = storeService.getStoreByUserEmail(userDetails.getUsername());
 
     return ResponseEntity
         .status(STORE_FETCHED.getStatus())
-        .body(ApiResponse.from(STORE_FETCHED.getStatus(), STORE_FETCHED.getMessage(), storeDtos));
+        .body(ApiResponse.from(STORE_FETCHED.getStatus(), STORE_FETCHED.getMessage(), storeDto));
   }
 
-  // 새로운 가게를 등록
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 새로운 가게 등록하기
+  @PreAuthorize("hasRole('MASTER')")
   @PostMapping
   public ResponseEntity<ApiResponse<StoreDto>> createStore(
-      @RequestBody CreateStoreRequestDto requestDto,
+      @RequestBody @Valid CreateStoreRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     StoreDto storeDto = storeService.createStore(requestDto, userDetails);
 
@@ -67,8 +69,8 @@ public class AdminStoreController {
         .body(ApiResponse.from(STORE_CREATED.getStatus(), STORE_CREATED.getMessage(), storeDto));
   }
 
-  // 특정 가게의 모든 정보 수정
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 특정 가게 정보를 수정하기
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}")
   public ResponseEntity<ApiResponse<StoreDto>> updateAllStore(
       @PathVariable("storeId") UUID storeId,
@@ -81,8 +83,8 @@ public class AdminStoreController {
         .body(ApiResponse.from(STORE_UPDATED.getStatus(), STORE_UPDATED.getMessage(), storeDto));
   }
 
-  // 특정 가게를 삭제
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 특정 가게를 삭제하기
+  @PreAuthorize("hasRole('MASTER')")
   @DeleteMapping("/{storeId}")
   public ResponseEntity<ApiResponse<StoreDto>> softDeleteStore(
       @PathVariable("storeId") UUID storeId,
@@ -95,16 +97,16 @@ public class AdminStoreController {
         .body(ApiResponse.from(STORE_DELETED.getStatus(), STORE_DELETED.getMessage(), storeDto));
   }
 
-  // 모든 가게 정보 조회
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 모든 가게 정보를 조회하기
+  @PreAuthorize("hasRole('MASTER')")
   @GetMapping
   public ResponseEntity<ApiResponse<Page<StoreDto>>> getAdminStores(
-      @RequestParam(value = "storeName", required = false) String storeName,
+      @RequestParam(value = "name", required = false) String name,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size
   ) {
     Page<StoreDto> adminStores = storeService.getAdminAllStores(
-        storeName,
+        name,
         page,
         size,
         "createdAt",
@@ -114,8 +116,8 @@ public class AdminStoreController {
         .body(ApiResponse.from(STORE_FETCHED.getStatus(), STORE_FETCHED.getMessage(), adminStores));
   }
 
-  // 가게 카테고리 수정
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 가게 카테고리 수정하기
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}/categories")
   public ResponseEntity<ApiResponse<StoreDto>> updateCategoriesInStore(
       @PathVariable("storeId") UUID storeId,
@@ -128,8 +130,8 @@ public class AdminStoreController {
         .body(ApiResponse.from(STORE_UPDATED.getStatus(), STORE_UPDATED.getMessage(), storeDto));
   }
 
-  // 가게 주소 수정
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 가게 주소 수정하기
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}/address")
   public ResponseEntity<ApiResponse<StoreDto>> updateAddressInStore(
       @PathVariable("storeId") UUID storeId,
@@ -142,7 +144,7 @@ public class AdminStoreController {
   }
 
   // 특정 가게 활성화 여부 설정하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/stores/{storeId}/active")
   public ResponseEntity<ApiResponse<StoreDto>> updateIsActiveInStore(
       @PathVariable("storeId") UUID storeId,
@@ -157,7 +159,7 @@ public class AdminStoreController {
 
 
   // 여러 가게 활성화 여부 설정하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/active")
   public ResponseEntity<ApiResponse<List<StoreDto>>> updateStoresActivationStatus(
       @RequestBody @Valid UpdateStoresActivationStatusRequestDto requestDto) {
@@ -170,12 +172,12 @@ public class AdminStoreController {
   }
 
   // 특정 가게 최소주문금액 수정하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}/minimum-price")
   public ResponseEntity<ApiResponse<StoreDto>> updateMinimumPriceInStore(
       @PathVariable("storeId") UUID storeId,
-      @RequestParam Integer price) {
-    StoreDto storeDto = storeService.updateMinimumPriceInStore(storeId, price);
+      @RequestBody @Valid UpdateMinimumPriceRequestDto requestDto) {
+    StoreDto storeDto = storeService.updateMinimumPriceInStore(storeId, requestDto);
 
     return ResponseEntity
         .status(STORE_UPDATED.getStatus())
@@ -183,12 +185,12 @@ public class AdminStoreController {
   }
 
   // 특정 가게 이름 수정하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}/name")
   public ResponseEntity<ApiResponse<StoreDto>> updateNameInStore(
       @PathVariable("storeId") UUID storeId,
-      @RequestParam String name) {
-    StoreDto storeDto = storeService.updateNameInStore(storeId, name);
+      @RequestBody @Valid UpdateStoreNameRequestDto requestDto) {
+    StoreDto storeDto = storeService.updateNameInStore(storeId, requestDto);
 
     return ResponseEntity
         .status(STORE_UPDATED.getStatus())
@@ -196,7 +198,7 @@ public class AdminStoreController {
   }
 
   // 특정 가게 주인 변경하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}/owner")
   public ResponseEntity<ApiResponse<StoreDto>> updateStoreOwner(
       @PathVariable("storeId") UUID storeId,
@@ -209,7 +211,7 @@ public class AdminStoreController {
   }
 
   // 특정 가게 전화번호 변경하기
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PatchMapping("/{storeId}/phone")
   public ResponseEntity<ApiResponse<StoreDto>> updatePhoneInStore(
       @PathVariable("storeId") UUID storeId,
@@ -221,6 +223,4 @@ public class AdminStoreController {
         .status(STORE_UPDATED.getStatus())
         .body(ApiResponse.from(STORE_UPDATED.getStatus(), STORE_UPDATED.getMessage(), storeDto));
   }
-
-
 }

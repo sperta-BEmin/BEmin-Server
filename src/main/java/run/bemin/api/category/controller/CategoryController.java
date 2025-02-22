@@ -22,6 +22,7 @@ public class CategoryController {
 
   private final CategoryService categoryService;
 
+
   @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANANGER') or hasRole('MASTER') or hasRole('OWNER')")
   @GetMapping
   public ResponseEntity<ApiResponse<Page<GetCategoryResponseDto>>> getAllCategories(
@@ -40,6 +41,4 @@ public class CategoryController {
         ApiResponse.from(CATEGORIES_FETCHED.getStatus(), CATEGORIES_FETCHED.getMessage(), categories)
     );
   }
-
-
 }

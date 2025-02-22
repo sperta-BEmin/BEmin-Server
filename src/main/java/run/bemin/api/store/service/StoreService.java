@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import run.bemin.api.category.dto.request.UpdateMinimumPriceRequestDto;
+import run.bemin.api.category.dto.request.UpdateStoreNameRequestDto;
 import run.bemin.api.category.entity.Category;
 import run.bemin.api.category.exception.CategoryNotFoundException;
 import run.bemin.api.category.repository.CategoryRepository;
@@ -263,22 +265,22 @@ public class StoreService {
   }
 
   @Transactional
-  public StoreDto updateMinimumPriceInStore(UUID storeId, Integer price) {
+  public StoreDto updateMinimumPriceInStore(UUID storeId, UpdateMinimumPriceRequestDto requestDto) {
     Store store = storeRepository.findById(storeId)
         .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
 
-    store.updateMinimumPrice(price);
+    store.updateMinimumPrice(requestDto.minimumPrice());
     Store updatedStore = storeRepository.save(store);
     return StoreDto.fromEntity(updatedStore);
   }
 
 
   @Transactional
-  public StoreDto updateNameInStore(UUID storeId, String name) {
+  public StoreDto updateNameInStore(UUID storeId, UpdateStoreNameRequestDto requestDto) {
     Store store = storeRepository.findById(storeId)
         .orElseThrow(() -> new StoreNotFoundException(STORE_NOT_FOUND.getMessage()));
 
-    store.updateName(name);
+    store.updateName(requestDto.name());
     Store updatedStore = storeRepository.save(store);
     return StoreDto.fromEntity(updatedStore);
   }

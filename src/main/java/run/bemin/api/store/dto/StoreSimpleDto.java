@@ -9,6 +9,7 @@ public record StoreSimpleDto(
     UUID id,
     String name,
     String phone,
+    Boolean isActive,
     List<String> categories
 ) {
   public static StoreSimpleDto fromEntity(Store store) {
@@ -20,6 +21,7 @@ public record StoreSimpleDto(
         store.getId(),
         store.getName(),
         store.getPhone(),
+        store.getIsActive(),
         categoryNames
     );
   }
