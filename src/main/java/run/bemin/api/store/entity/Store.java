@@ -48,7 +48,7 @@ public class Store extends AuditableEntity {
 
   @Column(name = "is_active", nullable = false)
   @ColumnDefault("true")
-  private boolean isActive = true;
+  private Boolean isActive = true;
 
   @Column(name = "rating")
   private Float rating = 0.0F;
