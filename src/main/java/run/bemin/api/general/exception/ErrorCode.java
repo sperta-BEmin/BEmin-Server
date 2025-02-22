@@ -35,15 +35,14 @@ public enum ErrorCode {
   // Signup (회원가입 관련 오류)
   SIGNUP_DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST.value(), "S001", "이미 존재하는 이메일입니다."),
   SIGNUP_INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST.value(), "S002", "이메일 형식이 올바르지 않습니다."),
-  SIGNUP_EMAIL_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S003", "이메일을 입력해주세요."),
-  SIGNUP_DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S004", "이미 존재하는 닉네임입니다."),
-  SIGNUP_INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST.value(), "S005", "닉네임 형식이 올바르지 않습니다."),
-  SIGNUP_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S006", "닉네임을 입력해주세요."),
+  SIGNUP_DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST.value(), "S003", "이미 존재하는 닉네임입니다."),
+  SIGNUP_INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST.value(), "S004", "닉네임 형식이 올바르지 않습니다."),
+  SIGNUP_EMAIL_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "S005", "이메일과 닉네임은 필수입니다."),
 
 
   // Signin (로그인 관련 오류)
   SIGNIN_UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED.value(), "L001", "인증되지 않은 사용자입니다."),
-  SIGNIN_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED.value(), "L002", "아이디 또는 비밀번호가 올바르지 않습니다."),
+  SIGNIN_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED.value(), "L002", "비밀번호를 입력해주세요."),
 
   // User (유저 관련 오류)
   USER_PAGE_INDEX_INVALID(HttpStatus.BAD_REQUEST.value(), "U001", "페이지 인덱스는 0보다 작을 수 없습니다."),
@@ -103,8 +102,8 @@ public enum ErrorCode {
   ORDER_CANT_CANCELLED(HttpStatus.BAD_REQUEST.value(), "OR006", "주문을 취소할 수 없습니다."),
 
   // Image (S3 및 이미지 최적화)
-  S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR.value(),"IM001","이미지 업로드에 실패했습니다."),
-  S3_INVALID_FORMAT(HttpStatus.BAD_REQUEST.value(),"IM002","데이터 형식이 올바르지 않습니다.");
+  S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR.value(), "IM001", "이미지 업로드에 실패했습니다."),
+  S3_INVALID_FORMAT(HttpStatus.BAD_REQUEST.value(), "IM002", "데이터 형식이 올바르지 않습니다.");
 
   private final int status;
   private final String code;
