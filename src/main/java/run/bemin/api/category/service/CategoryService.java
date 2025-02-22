@@ -1,10 +1,12 @@
 package run.bemin.api.category.service;
 
 import static run.bemin.api.general.exception.ErrorCode.CATEGORY_ALREADY_EXISTS;
+import static run.bemin.api.general.exception.ErrorCode.CATEGORY_NOT_FOUND;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -128,11 +130,12 @@ public class CategoryService {
   }
 
   @Transactional
-  public CategoryDto updatedCategory(UpdateCategoryRequestDto requestDto, UserDetailsImpl userDetails) {
+  public CategoryDto updatedCategory(UUID categoryId, UpdateCategoryRequestDto requestDto,
+                                     UserDetailsImpl userDetails) {
     existsCategoryByName(requestDto.name());
 
-    Category category = categoryRepository.findById(requestDto.categoryId())
-        .orElseThrow(() -> new CategoryNotFoundException(requestDto.categoryId().toString()));
+    Category category = categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new CategoryNotFoundException(CATEGORY_NOT_FOUND.name() + ": " + categoryId));
 
     category.update(userDetails.getUsername(), requestDto.name(), requestDto.isDeleted());
     Category savedCategory = categoryRepository.save(category);
@@ -142,9 +145,9 @@ public class CategoryService {
 
 
   @Transactional
-  public CategoryDto softDeleteCategory(SoftDeleteCategoryRequestDto requestDto, UserDetailsImpl userDetails) {
-    Category category = categoryRepository.findById(requestDto.categoryId())
-        .orElseThrow(() -> new CategoryNotFoundException(requestDto.categoryId().toString()));
+  public CategoryDto softDeleteCategory(UUID categoryId, UserDetailsImpl userDetails) {
+    Category category = categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new CategoryNotFoundException(CATEGORY_NOT_FOUND.name() + ": " + categoryId));
 
     category.softDelete(userDetails.getUsername());
     Category softDeletedCategory = categoryRepository.save(category);
