@@ -6,6 +6,7 @@ import static run.bemin.api.category.dto.CategoryResponseCode.CATEGORY_DELETED;
 import static run.bemin.api.category.dto.CategoryResponseCode.CATEGORY_UPDATED;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import run.bemin.api.category.dto.CategoryDto;
 import run.bemin.api.category.dto.request.CreateCategoryRequestDto;
-import run.bemin.api.category.dto.request.SoftDeleteCategoryRequestDto;
 import run.bemin.api.category.dto.request.UpdateCategoryRequestDto;
 import run.bemin.api.category.service.CategoryService;
 import run.bemin.api.general.response.ApiResponse;
@@ -34,8 +35,8 @@ public class AdminCategoryController {
 
   private final CategoryService categoryService;
 
-  // TODO: 카테고리 추가는 MASTER만 가능하다. 지금은 개발 환경을 위해 임시 설정.
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  // 단 건 카테고리 생성하기
+  @PreAuthorize("hasRole('MASTER')")
   @PostMapping
   public ResponseEntity<ApiResponse<CategoryDto>> createCategory(
       @RequestBody CreateCategoryRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -46,7 +47,7 @@ public class AdminCategoryController {
         .body(ApiResponse.from(CATEGORY_CREATED.getStatus(), CATEGORY_CREATED.getMessage(), categoryDto));
   }
 
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @PostMapping("/batch")
   public ResponseEntity<ApiResponse<List<CategoryDto>>> createCategories(
       @RequestBody List<CreateCategoryRequestDto> requestDtoList,
@@ -58,7 +59,7 @@ public class AdminCategoryController {
         .body(ApiResponse.from(CATEGORY_CREATED.getStatus(), CATEGORY_CREATED.getMessage(), categories));
   }
 
-  @PreAuthorize("not hasRole('CUSTOMER')")
+  @PreAuthorize("hasRole('MASTER')")
   @GetMapping
   public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAdminCategories(
       @RequestParam(value = "name", required = false) String name,
@@ -76,24 +77,25 @@ public class AdminCategoryController {
     );
   }
 
-  @PreAuthorize("not hasRole('CUSTOMER')")
-  @PatchMapping
+  @PreAuthorize("hasRole('MASTER')")
+  @PatchMapping("/{categoryId}")
   public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(
+      @PathVariable UUID categoryId,
       @RequestBody UpdateCategoryRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    CategoryDto categoryDto = categoryService.updatedCategory(requestDto, userDetails);
+    CategoryDto categoryDto = categoryService.updatedCategory(categoryId, requestDto, userDetails);
 
     return ResponseEntity
         .status(CATEGORY_UPDATED.getStatus())
         .body(ApiResponse.from(CATEGORY_UPDATED.getStatus(), CATEGORY_UPDATED.getMessage(), categoryDto));
   }
 
-  @PreAuthorize("not hasRole('CUSTOMER')")
-  @DeleteMapping
+  @PreAuthorize("hasRole('MASTER')")
+  @DeleteMapping("/{categoryId}")
   public ResponseEntity<ApiResponse<CategoryDto>> softDeleteCategory(
-      @RequestBody SoftDeleteCategoryRequestDto requestDto,
+      @PathVariable UUID categoryId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    CategoryDto categoryDto = categoryService.softDeleteCategory(requestDto, userDetails);
+    CategoryDto categoryDto = categoryService.softDeleteCategory(categoryId, userDetails);
 
     return ResponseEntity
         .status(CATEGORY_DELETED.getStatus())
