@@ -1,5 +1,6 @@
 package run.bemin.api.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -44,8 +45,9 @@ public class UserAddress extends AuditableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_email")
+  @JsonBackReference // User의 userAddressList에 대한 역참조를 무시
   private User user;
-  
+
   @Column(name = "is_deleted", nullable = false)
   private Boolean isDeleted = false;
 
