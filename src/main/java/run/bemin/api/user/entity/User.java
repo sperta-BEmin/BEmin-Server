@@ -1,6 +1,6 @@
 package run.bemin.api.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,7 +63,8 @@ public class User extends AuditableEntity {
 
   // 주소 함께 저장 + 주소 함께 삭제
   // 현재클래스To매핑클래스
-  @JsonIgnore
+  // 양방향 관계 관리: User가 부모, 자식인 UserAddress는 역참조하도록 함.
+  @JsonManagedReference // 직렬화 시 userAddressList는 포함됨
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
   private final List<UserAddress> userAddressList = new ArrayList<>();
 
