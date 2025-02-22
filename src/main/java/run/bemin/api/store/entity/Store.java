@@ -115,7 +115,7 @@ public class Store extends AuditableEntity {
   }
 
 
-   // 카테고리 연결 헬퍼 메서드. 첫 번째 추가되는 카테고리를 primary 로 설정
+  // 카테고리 연결 헬퍼 메서드. 첫 번째 추가되는 카테고리를 primary 로 설정
   public void addCategory(Category category, String createdBy) {
     boolean isPrimary = this.storeCategories.isEmpty();
     StoreCategory storeCategory = StoreCategory.create(this, category, isPrimary);
@@ -123,7 +123,7 @@ public class Store extends AuditableEntity {
   }
 
 
-   // 가게 정보를 업데이트
+  // 가게 정보를 업데이트
   public void update(String name, String phone, Integer minimumPrice, Boolean isActive, User owner) {
     this.name = name;
     this.phone = phone;
@@ -151,10 +151,15 @@ public class Store extends AuditableEntity {
   public void updateOwner(User newOwner) {
     this.owner = newOwner;
   }
-  
+
   // 가게 전화번호 업데이트
   public void updatePhone(String newPhone) {
     this.phone = newPhone;
+  }
+
+  // 가게 평점 업데이트
+  public void updateRating(float rating) {
+    this.rating = rating;
   }
 
   // 소프트 삭제 처리: 삭제 플래그 및 삭제 시간, 삭제자 정보를 기록
@@ -165,8 +170,7 @@ public class Store extends AuditableEntity {
   }
 
 
-
-   // 카테고리 업데이트: 새로운 카테고리 목록에 따라 기존 연결을 소프트 삭제, 업데이트 또는 신규 추가
+  // 카테고리 업데이트: 새로운 카테고리 목록에 따라 기존 연결을 소프트 삭제, 업데이트 또는 신규 추가
   public void updateCategories(List<Category> newCategories, String currentUser) {
     var newCategoryMap = newCategories.stream()
         .collect(Collectors.toMap(Category::getId, category -> category));
