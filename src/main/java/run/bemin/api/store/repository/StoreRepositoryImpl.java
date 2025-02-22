@@ -34,6 +34,9 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     // BooleanBuilder 를 통해 조건을 동적으로 구성
     BooleanBuilder builder = new BooleanBuilder();
 
+    // 가게 조건: 삭제된 가게 제외
+    builder.and(store.isDeleted.eq(false));
+
     // 카테고리 조건: categoryName 이 입력되었으면 해당 카테고리 이름과 정확히 일치하는 조건 추가
     if (categoryName != null && !categoryName.isEmpty()) {
       builder.and(category.name.eq(categoryName));

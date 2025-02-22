@@ -20,11 +20,8 @@ public record UpdateAllStoreRequestDto(
     @Min(value = 0, message = STORE_MINIMUM_PRICE_INVALID)
     Integer minimumPrice,
 
+    @NotBlank(message = STORE_IS_ACTIVE_BLANK)
     Boolean isActive,
-
-    @NotBlank(message = USER_EMAIL_BLANK)
-    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = USER_EMAIL_INVALID)
-    String userEmail,
 
     @NotBlank(message = STORE_ZONE_CODE_BLANK)
     @Pattern(regexp = "^\\d{5}$", message = STORE_ZONE_CODE_INVALID)
