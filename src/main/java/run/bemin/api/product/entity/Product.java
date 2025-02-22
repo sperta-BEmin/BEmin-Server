@@ -42,15 +42,15 @@ public class Product extends AuditableEntity {
   @Column(name = "image_url")
   private String imageUrl;
 
-  @Column(name = "is_hidden", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+  @Column(name = "is_hidden", nullable = false)
   private boolean isHidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id", nullable = true)
   private Store store;
 
-  @Column(name = "activated", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-  private boolean activated;
+  @Column(name = "activated", nullable = false)
+  private boolean activated = true;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
