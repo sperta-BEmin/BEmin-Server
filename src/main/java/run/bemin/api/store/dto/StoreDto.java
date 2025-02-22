@@ -15,7 +15,7 @@ public record StoreDto(
     Boolean isActive,
     Float rating,
     Boolean isDeleted,
-    String userEmail,
+    String owner,
     StoreAddressDto storeAddress,
     List<CategoryDto> categories,
     String createdBy,
