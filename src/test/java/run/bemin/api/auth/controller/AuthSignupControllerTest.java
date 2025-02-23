@@ -105,7 +105,7 @@ class AuthSignupControllerTest {
   }
 
   @Test
-  @DisplayName("이메일 중복 확인 테스트 - 사용 가능한 이메일")
+  @DisplayName("이메일 중복 확인 성공 테스트 - 사용 가능한 이메일")
   void checkEmailTest() throws Exception {
     // Given
     String email = "test@gmail.com";
@@ -125,7 +125,7 @@ class AuthSignupControllerTest {
   }
 
   @Test
-  @DisplayName("이메일 중복 확인 테스트 - 이메일 중복일 경우")
+  @DisplayName("이메일 중복 확인 실패 테스트 - 이메일 중복일 경우")
   void checkEmailDuplicateTest() throws Exception {
     // Given
     String email = "duplicate@gmail.com";
@@ -141,7 +141,40 @@ class AuthSignupControllerTest {
         .andDo(print());
   }
 
-  
+  @Test
+  @DisplayName("이메일 중복 확인 실패 테스트 - 이메일 형식이 올바르지 않을 경우")
+  void checkInvalidEmailFormatTest() throws Exception {
+    // Given
+    String email = "invalid@";
+
+    when(authService.checkEmail(email))
+        .thenThrow(new run.bemin.api.auth.exception.SignupInvalidEmailFormatException("이메일 형식이 올바르지 않습니다."));
+
+    // When & Then
+    mockMvc.perform(get("/api/auth/email/exists")
+            .param("email", email))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("이메일 형식이 올바르지 않습니다."))
+        .andExpect(jsonPath("$.code").value("S002"))
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("이메일 중복 확인 실패 테스트 - 이메일 입력하지 않을 경우")
+  void checkEmailNotProvidedTest() throws Exception {
+    // Given
+    String email = "";
+
+    // When & Then
+    mockMvc.perform(get("/api/auth/email/exists")
+            .param("email", email))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("이메일과 닉네임은 필수입니다."))
+        .andExpect(jsonPath("$.code").value("S005"))
+        .andDo(print());
+  }
+
+
   @Test
   @DisplayName("닉네임 중복 확인 테스트 - 사용 가능한 닉네임")
   void checkNicknameTest() throws Exception {
@@ -161,4 +194,55 @@ class AuthSignupControllerTest {
         .andExpect(jsonPath("$.data.message").value("사용 가능한 닉네임입니다."))
         .andDo(print());
   }
+
+  @Test
+  @DisplayName("닉네임 중복 확인 실패 테스트 - 닉네임 중복일 경우")
+  void checkNicknameDuplicateTest() throws Exception {
+    // Given
+    String nickname = "testUser";
+    NicknameCheckResponseDto nicknameResponse = new NicknameCheckResponseDto(true, "이미 존재하는 닉네임입니다.", "S003");
+    when(authService.checkNickname(nickname)).thenReturn(nicknameResponse);
+
+    // When & Then
+    mockMvc.perform(get("/api/auth/nickname/exists")
+            .param("nickname", nickname))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("이미 존재하는 닉네임입니다."))
+        .andExpect(jsonPath("$.data.code").value("S003"))
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("닉네임 중복 확인 실패 테스트 - 닉네임 형식이 올바르지 않을 경우")
+  void checkInvalidNicknameFormatTest() throws Exception {
+    // Given
+    String nickname = "t";
+
+    when(authService.checkNickname(nickname))
+        .thenThrow(new run.bemin.api.auth.exception.SignupInvalidNicknameFormatException("닉네임 형식이 올바르지 않습니다."));
+
+    // When & Then
+    mockMvc.perform(get("/api/auth/nickname/exists")
+            .param("nickname", nickname))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("닉네임 형식이 올바르지 않습니다."))
+        .andExpect(jsonPath("$.code").value("S004"))
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("닉네임 중복 확인 실패 테스트 - 닉네임 입력하지 않을 경우")
+  void checkNicknameNotProvidedTest() throws Exception {
+    // Given
+    String nickname = "";
+
+    // When & Then
+    mockMvc.perform(get("/api/auth/nickname/exists")
+            .param("nickname", nickname))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("이메일과 닉네임은 필수입니다."))
+        .andExpect(jsonPath("$.code").value("S005"))
+        .andDo(print());
+  }
+
 }
