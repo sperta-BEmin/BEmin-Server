@@ -1,4 +1,4 @@
-package run.bemin.api.order.dto.request;
+package run.bemin.api.order.dto;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class DeleteOrderRequest {
+public class CancelOrderRequest {
   @NotNull
   private UUID orderId; // 주문 ID
 }

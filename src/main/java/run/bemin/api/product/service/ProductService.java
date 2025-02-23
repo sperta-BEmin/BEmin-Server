@@ -1,7 +1,7 @@
 package run.bemin.api.product.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -9,8 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import run.bemin.api.comment.repository.CommentRepository;
-import run.bemin.api.image.util.UrlUtil;
+import run.bemin.api.product.dto.ProductRequestDto;
 import run.bemin.api.product.dto.ProductSearchDto;
 import run.bemin.api.product.dto.UpdateProductDetailDto;
 import run.bemin.api.product.entity.Product;
@@ -25,12 +24,9 @@ import run.bemin.api.store.repository.StoreRepository;
 @Transactional(readOnly = true)
 public class ProductService {
 
-  private final UrlUtil urlUtil;
   private final ProductValidator validator;
-
   private final ProductRepository productRepository;
   private final StoreRepository storeRepository;
-  private final CommentRepository commentRepository;
 
   @Transactional
   public void createProduct(Store store, int price, String title, String comment, String imageUrl) {
@@ -38,22 +34,20 @@ public class ProductService {
         .store(store)
         .price(price)
         .title(title)
+        .comment(comment)
+        .imageUrl(imageUrl)
         .build();
-
-    if(!comment.isEmpty()){ product.updateComment(comment); }
-    if(!imageUrl.isEmpty()){ product.updateImageUrl(urlUtil.getFoodImgAndUploadImg(imageUrl)); }
-
     productRepository.save(product);
   }
 
-  public Page<ProductSearchDto> getProducts(String storeId, int page, int size) {
+  public Page<ProductSearchDto> getProducts(Store store, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    return productRepository.findByStoreId(UUID.fromString(storeId), pageable);
+    return productRepository.findByStoreId(store.getId(), pageable);
   }
 
   @Transactional
-  public void updateProductDetails(String productId, UpdateProductDetailDto requestDto) {
-    Product product = productRepository.findById(UUID.fromString(productId))
+  public void updateProductDetails(String product_id, UpdateProductDetailDto requestDto) {
+    Product product = productRepository.findById(UUID.fromString(product_id))
         .orElseThrow(ProductNotFoundException::new);
 
     requestDto.getPrice().ifPresent(product::updatePrice);
@@ -63,23 +57,11 @@ public class ProductService {
   }
 
   @Transactional
-  public void deleteProduct(String productId, LocalDateTime time) {
-    Product product = productRepository.findById(UUID.fromString(productId))
+  public void deleteProduct(String product_id, LocalDateTime time) {
+    Product product = productRepository.findById(UUID.fromString(product_id))
         .orElseThrow(ProductNotFoundException::new);
     String deletedBy = validator.isDeletedProduct(product);
     product.deleteProduct(deletedBy, time);
   }
-
-  @Transactional
-  public void updateComment(String productId,String content){
-    Product product = productRepository.findById(UUID.fromString(productId))
-        .orElseThrow(ProductNotFoundException::new);
-    product.updateComment(content);
-  }
-
-  public List<String> getRecentProductComment(String productId) {
-    return commentRepository.getRecentComments(UUID.fromString(productId));
-  }
-
 
 }

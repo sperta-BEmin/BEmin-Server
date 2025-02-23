@@ -1,4 +1,4 @@
-package run.bemin.api.order.dto.request;
+package run.bemin.api.order.dto;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;

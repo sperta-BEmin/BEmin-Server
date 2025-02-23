@@ -1,6 +1,7 @@
 package run.bemin.api.general.auditing;
 
 import java.util.Optional;
+import jdk.jshell.spi.ExecutionControl.UserException;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,26 +14,14 @@ public class AuditorAwareImpl implements AuditorAware<String> {
   @Override
   public Optional<String> getCurrentAuditor() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    validateAuthentication(authentication);
-
-    Object principal = authentication.getPrincipal();
-    if (principal instanceof UserDetailsImpl) {
-      return Optional.of(((UserDetailsImpl) principal).getUsername());
-    } else if (principal instanceof String) {
-      // 예를 들어, 익명 사용자일 경우 Optional.empty()를 반환하거나 기본값을 줄 수 있습니다.
-      // 회원 가입하면, 스프링 시큐리티 세션 안에 저장된 회원 정보가 없습니다! 그래서 Optional 타입으로 null 처리하고,
-      // created_by 컬럼에 null 이 저장됩니다.
-      return Optional.empty();
-    }
-
-    return Optional.empty();
+    // 권한 설정이 완성되면 주석 해제 하겠습니다.
+    //validateAuthentication(authentication);
+    return Optional.of(((UserDetailsImpl) authentication.getPrincipal()).getUsername());
   }
 
-  private void validateAuthentication(Authentication authentication) {
+  private void validateAuthentication(Authentication authentication) throws UserException {
     if (authentication == null || !authentication.isAuthenticated()) {
       throw new AuthAccessDeniedException(ErrorCode.AUTH_ACCESS_DENIED.getMessage());
     }
   }
-
-
 }

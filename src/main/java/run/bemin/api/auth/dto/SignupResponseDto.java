@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SignupResponseDto {
   private String userEmail;
-  private String role;
+  private String name;
 }

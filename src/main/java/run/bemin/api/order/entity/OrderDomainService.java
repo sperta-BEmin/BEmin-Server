@@ -1,11 +1,6 @@
 package run.bemin.api.order.entity;
 
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import run.bemin.api.order.dto.request.UpdateOrderRequest;
-import run.bemin.api.order.exception.OrderNullException;
-import run.bemin.api.order.exception.OrderStatusException;
-import run.bemin.api.security.UserDetailsImpl;
+import run.bemin.api.order.dto.UpdateOrderRequest;
 import run.bemin.api.user.entity.User;
 
 /*
@@ -14,13 +9,12 @@ import run.bemin.api.user.entity.User;
  * 배달기사님 연락처 변경
  * 주문취소 로직
  */
-@Service
 public class OrderDomainService {
 
   /**
    * 주문 생성 로직
    */
-  public Order createOrder(User user, UUID storeId, OrderType orderType, String storeName, OrderAddress address) {
+  public Order createOrder(User user, String storeId, OrderType orderType, String storeName, OrderAddress address) {
     validateOrderCreation(user, storeId, orderType, address);
 
     return Order.builder()
@@ -61,21 +55,16 @@ public class OrderDomainService {
     order.cancelOrder();
   }
 
-
-  public void deleteOrder(Order order, UserDetailsImpl user) {
-    order.softDelete(user.getUsername());
-  }
-
   /**
    * 주문 생성 검증 로직
    */
-  private void validateOrderCreation(User user, UUID storeId, OrderType orderType, OrderAddress address) {
+  private void validateOrderCreation(User user, String storeId, OrderType orderType, OrderAddress address) {
     if (user == null || storeId == null || orderType == null) {
-      throw new OrderNullException("createOrder parameters missing!!");
+      throw new IllegalArgumentException("createOrder parameters missing!!");
     }
 
     if (orderType == OrderType.DELIVERY && address == null) {
-      throw new OrderNullException("delivery order's address parameter missing!!");
+      throw new IllegalArgumentException("delivery order's address parameter missing!!");
     }
   }
 
@@ -85,7 +74,7 @@ public class OrderDomainService {
   private void validateOrderCancellation(Order order) {
     if (order.getOrderStatus() == OrderStatus.DELIVERY_COMPLETED ||
         order.getOrderStatus() == OrderStatus.TAKEOUT_COMPLETED) {
-      throw new OrderStatusException("can not canceled already completed order!!");
+      throw new IllegalStateException("can not canceled already completed order!!");
     }
   }
 
@@ -94,7 +83,7 @@ public class OrderDomainService {
    */
   private void validateOrderStatusTransition(OrderStatus prev, OrderStatus next) {
     if (!prev.canTransitionTo(next)) {
-      throw new OrderStatusException("can not transition to " + prev + " to " + next);
+      throw new IllegalStateException("can not transition to " + prev + " to " + next);
     }
   }
 }

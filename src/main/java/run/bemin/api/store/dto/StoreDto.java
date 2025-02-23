@@ -1,10 +1,7 @@
 package run.bemin.api.store.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import run.bemin.api.category.dto.CategoryDto;
 import run.bemin.api.store.entity.Store;
 
 public record StoreDto(
@@ -12,17 +9,14 @@ public record StoreDto(
     String name,
     String phone,
     Integer minimumPrice,
-    Boolean isActive,
     Float rating,
     Boolean isDeleted,
-    String owner,
-    StoreAddressDto storeAddress,
-    List<CategoryDto> categories,
+    String userEmail,
     String createdBy,
-    LocalDateTime createdAt,
     String updatedBy,
-    LocalDateTime updatedAt,
     String deletedBy,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt,
     LocalDateTime deletedAt
 ) {
 
@@ -32,21 +26,17 @@ public record StoreDto(
         store.getName(),
         store.getPhone(),
         store.getMinimumPrice(),
-        store.getIsActive(),
         store.getRating(),
         store.getIsDeleted(),
-        store.getOwner() != null ? store.getOwner().getUserEmail() : null,
-        store.getStoreAddress() != null ? StoreAddressDto.fromEntity(store.getStoreAddress()) : null,
-        store.getStoreCategories().stream()
-            .filter(sc -> !sc.isDeleted())
-            .map(sc -> CategoryDto.fromEntity(sc.getCategory()))
-            .collect(Collectors.toList()),
         store.getCreatedBy(),
-        store.getCreatedAt(),
         store.getUpdatedBy(),
-        store.getUpdatedAt(),
         store.getDeletedBy(),
+        store.getUserEmail(),
+        store.getCreatedAt(),
+        store.getUpdatedAt(),
         store.getDeletedAt()
     );
   }
+
+
 }
