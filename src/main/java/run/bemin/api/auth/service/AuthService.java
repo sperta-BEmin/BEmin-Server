@@ -104,7 +104,7 @@ public class AuthService {
 
   // 이메일 형식 검증
   private void validateEmail(String email) {
-    if (!Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", email)) {
+    if (!Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$", email)) {
       throw new SignupInvalidEmailFormatException(ErrorCode.SIGNUP_INVALID_EMAIL_FORMAT.getMessage());
     }
   }
