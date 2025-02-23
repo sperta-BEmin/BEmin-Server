@@ -29,6 +29,7 @@ import run.bemin.api.auth.dto.SigninResponseDto;
 import run.bemin.api.auth.jwt.JwtUtil;
 import run.bemin.api.auth.service.AuthService;
 import run.bemin.api.config.MockConfig;
+import run.bemin.api.config.TestSecurityConfig;
 import run.bemin.api.config.WebSecurityConfig;
 import run.bemin.api.security.UserDetailsImpl;
 import run.bemin.api.user.entity.User;
@@ -43,7 +44,7 @@ import run.bemin.api.user.entity.UserRoleEnum;
         )
     }
 )
-@Import(MockConfig.class)
+@Import({MockConfig.class, TestSecurityConfig.class})
 class AuthSessionControllerTest {
 
   @Autowired
@@ -84,6 +85,7 @@ class AuthSessionControllerTest {
 
     // When & Then
     mockMvc.perform(post("/api/auth/signin")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDto))
         )
@@ -104,6 +106,7 @@ class AuthSessionControllerTest {
     String jsonRequest = "{\"userEmail\": \"invalid@\", \"password\": \"password123\"}";
 
     mockMvc.perform(post("/api/auth/signin")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
         .andExpect(status().isBadRequest())
@@ -117,6 +120,7 @@ class AuthSessionControllerTest {
     String jsonRequest = "{\"userEmail\": \"test@gmail.com\", \"password\": \"\"}";
 
     mockMvc.perform(post("/api/auth/signin")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
         .andExpect(status().isUnauthorized())
