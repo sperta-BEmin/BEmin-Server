@@ -3,11 +3,13 @@ package run.bemin.api.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
+@Builder
 public class SigninRequestDto {
 
   @NotBlank(message = "이메일을 입력해주세요.")

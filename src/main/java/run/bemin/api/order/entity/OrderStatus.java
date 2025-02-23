@@ -1,6 +1,7 @@
 package run.bemin.api.order.entity;
 
 import lombok.Getter;
+import run.bemin.api.order.exception.OrderStatusException;
 
 @Getter
 public enum OrderStatus {
@@ -30,8 +31,7 @@ public enum OrderStatus {
         return status;
       }
     }
-    // 추후 globalException 코드 추가
-    throw new IllegalArgumentException("Invalid OrderStatus code!! : " + code);
+    throw new OrderStatusException("Invalid OrderStatus code!! : " + code);
   }
 
   // 주문상태 전환의 흐름 규칙 정의

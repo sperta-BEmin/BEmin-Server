@@ -8,16 +8,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_store_address")
-public class StoreAddress {
+public class StoreAddress extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,9 +40,39 @@ public class StoreAddress {
   private String roadAddress; // 도로명 주소
 
   @Column(name = "detail", nullable = false)
-  private String detail;
+  private String detail; // 상세 주소
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id")
   private Store store;
+
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+
+  @Column(name = "deleted_by")
+  private String deletedBy;
+
+  @Builder
+  public StoreAddress(String zoneCode, String bcode, String jibunAddress, String roadAddress, String detail,
+                      Store store) {
+    this.zoneCode = zoneCode;
+    this.bcode = bcode;
+    this.jibunAddress = jibunAddress;
+    this.roadAddress = roadAddress;
+    this.detail = detail;
+    this.store = store;
+  }
+
+  // Store와의 양방향 연관관계 설정용 메서드
+  public void setStore(Store store) {
+    this.store = store;
+  }
+
+  public void update(String zoneCode, String bcode, String jibunAddress, String roadAddress, String detail) {
+    this.zoneCode = zoneCode;
+    this.bcode = bcode;
+    this.jibunAddress = jibunAddress;
+    this.roadAddress = roadAddress;
+    this.detail = detail;
+  }
 }

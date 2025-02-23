@@ -14,11 +14,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import run.bemin.api.category.entity.Category;
+import run.bemin.api.general.auditing.AuditableEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_store_category")
-public class StoreCategory {
+public class StoreCategory extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,40 +34,25 @@ public class StoreCategory {
   private Category category;
 
   @Column(name = "is_primary", nullable = false)
-  private Boolean isPrimary;
+  private boolean isPrimary;
 
   @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+  private boolean isDeleted = false;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
-  @Column(name = "created_by", nullable = false, updatable = false)
-  private String createdBy;
-
-  @Column(name = "updated_by")
-  private String updatedBy;
-
   @Column(name = "deleted_by")
   private String deletedBy;
 
-  private StoreCategory(Store store, Category category, Boolean isPrimary, String createdBy) {
+  private StoreCategory(Store store, Category category, boolean isPrimary) {
     this.store = store;
     this.category = category;
-    this.isPrimary = isPrimary != null ? isPrimary : false;
-    this.isDeleted = false;
-    this.createdBy = createdBy;
-    this.createdAt = LocalDateTime.now();
+    this.isPrimary = isPrimary;
   }
 
-  public static StoreCategory create(Store store, Category category, Boolean isPrimary, String createdBy) {
-    return new StoreCategory(store, category, isPrimary, createdBy);
+  public static StoreCategory create(Store store, Category category, boolean isPrimary) {
+    return new StoreCategory(store, category, isPrimary);
   }
 
   public void softDelete(String deletedBy) {
@@ -75,9 +61,14 @@ public class StoreCategory {
     this.deletedAt = LocalDateTime.now();
   }
 
-  public void update(String updatedBy, Boolean isPrimary) {
-    this.updatedBy = updatedBy;
-    this.updatedAt = LocalDateTime.now();
-    this.isPrimary = isPrimary != null ? isPrimary : this.isPrimary;
+  public void update(boolean isPrimary) {
+    this.isPrimary = isPrimary;
+  }
+
+  public void restore(String updatedBy, boolean isPrimary) {
+    this.isDeleted = false;
+    this.deletedBy = null;
+    this.deletedAt = null;
+    update(isPrimary);
   }
 }

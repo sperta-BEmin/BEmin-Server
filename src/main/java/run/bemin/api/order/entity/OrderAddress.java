@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.order.exception.OrderNullException;
 
 @Embeddable
 @Builder
@@ -25,7 +26,7 @@ public class OrderAddress {
   public static OrderAddress of(String bcode, String jibunAddress, String roadAddress, String detailAddress) {
     if (bcode == null || jibunAddress == null || roadAddress == null || detailAddress == null) {
       // 추후 글로벌 익셉션 적용
-      throw new IllegalArgumentException("OrderAddress's parameters must not be null!!");
+      throw new OrderNullException("OrderAddress's parameters must not be null!!");
     }
     return new OrderAddress(bcode, jibunAddress, roadAddress, detailAddress);
   }

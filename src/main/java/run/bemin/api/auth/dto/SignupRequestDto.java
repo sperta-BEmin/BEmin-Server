@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import run.bemin.api.user.dto.UserAddressDto;
 import run.bemin.api.user.entity.UserRoleEnum;
 
 @Getter
@@ -45,8 +46,11 @@ public class SignupRequestDto {
   @NotBlank(message = "전화번호를 입력해주세요.")
   private String phone;
 
-  @NotBlank(message = "주소를 입력해주세요.")
-  private String address;
+  // 대표 주소를 User 테이블에 저장할 간단한 문자열(예: 도로명주소)
+  // 하지만 여기서는 AddressDto를 통해 상세주소 정보를 전달합니다.
+  // 대표주소는 나중에 AddressDto의 roadAddress 값을 User.address에 설정합니다.
+  @NotNull(message = "주소 정보를 입력해주세요.")
+  private UserAddressDto address;
 
   @NotNull(message = "회원 역할을 입력해주세요.")
   private UserRoleEnum role;
