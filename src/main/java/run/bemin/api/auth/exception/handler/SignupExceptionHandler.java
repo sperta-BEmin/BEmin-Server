@@ -3,13 +3,11 @@ package run.bemin.api.auth.exception.handler;
 import static run.bemin.api.general.exception.ErrorCode.FAIL_REQUEST_PARAMETER_VALIDATION;
 import static run.bemin.api.general.exception.ErrorCode.SIGNUP_DUPLICATE_EMAIL;
 import static run.bemin.api.general.exception.ErrorCode.SIGNUP_DUPLICATE_NICKNAME;
-import static run.bemin.api.general.exception.ErrorCode.SIGNUP_EMAIL_NICKNAME_REQUIRED;
+import static run.bemin.api.general.exception.ErrorCode.SIGNUP_EMAIL_REQUIRED;
 import static run.bemin.api.general.exception.ErrorCode.SIGNUP_INVALID_EMAIL_FORMAT;
 import static run.bemin.api.general.exception.ErrorCode.SIGNUP_INVALID_NICKNAME_FORMAT;
 
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -23,64 +21,71 @@ import run.bemin.api.auth.exception.SignupInvalidEmailFormatException;
 import run.bemin.api.auth.exception.SignupInvalidNicknameFormatException;
 import run.bemin.api.general.exception.ErrorResponse;
 
-@Order(1)
-@Slf4j
 @RestControllerAdvice
 public class SignupExceptionHandler {
 
   @ExceptionHandler(SignupDuplicateEmailException.class)
   public ResponseEntity<ErrorResponse> handleDuplicateEmail(SignupDuplicateEmailException e) {
-    log.error("Duplicate email during signup", e);
-    final ErrorResponse response = ErrorResponse.of(SIGNUP_DUPLICATE_EMAIL);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_DUPLICATE_EMAIL.getStatus()));
+    return ResponseEntity.status(SIGNUP_DUPLICATE_EMAIL.getStatus())
+        .body(ErrorResponse.of(SIGNUP_DUPLICATE_EMAIL));
   }
 
   @ExceptionHandler(SignupDuplicateNicknameException.class)
   public ResponseEntity<ErrorResponse> handleDuplicateNickname(SignupDuplicateNicknameException e) {
-    log.error("Duplicate nickname during signup", e);
-    final ErrorResponse response = ErrorResponse.of(SIGNUP_DUPLICATE_NICKNAME);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_DUPLICATE_NICKNAME.getStatus()));
+    return ResponseEntity.status(SIGNUP_DUPLICATE_NICKNAME.getStatus())
+        .body(ErrorResponse.of(SIGNUP_DUPLICATE_NICKNAME));
   }
 
+  /**
+   * 이메일 형식이 올바르지 않을 때 예외 처리
+   */
   @ExceptionHandler(SignupInvalidEmailFormatException.class)
   public ResponseEntity<ErrorResponse> handleInvalidEmailFormat(SignupInvalidEmailFormatException e) {
-    log.error("Invalid email format during signup", e);
-    final ErrorResponse response = ErrorResponse.of(SIGNUP_INVALID_EMAIL_FORMAT);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_INVALID_EMAIL_FORMAT.getStatus()));
+    return ResponseEntity.status(SIGNUP_INVALID_EMAIL_FORMAT.getStatus())
+        .body(ErrorResponse.of(SIGNUP_INVALID_EMAIL_FORMAT));
   }
 
+  /**
+   * 닉네임 형식이 올바르지 않을 때 예외 처리
+   */
   @ExceptionHandler(SignupInvalidNicknameFormatException.class)
   public ResponseEntity<ErrorResponse> handleInvalidNicknameFormat(SignupInvalidNicknameFormatException e) {
-    log.error("Invalid nickname format during signup", e);
-    final ErrorResponse response = ErrorResponse.of(SIGNUP_INVALID_NICKNAME_FORMAT);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_INVALID_NICKNAME_FORMAT.getStatus()));
+    return ResponseEntity.status(SIGNUP_INVALID_NICKNAME_FORMAT.getStatus())
+        .body(ErrorResponse.of(SIGNUP_INVALID_NICKNAME_FORMAT));
   }
 
+  /**
+   * `@RequestParam`에서 이메일을 입력하지 않았을 때 예외 처리
+   */
   @ExceptionHandler(HandlerMethodValidationException.class)
   public ResponseEntity<ErrorResponse> handleHandlerMethodValidationException(HandlerMethodValidationException e) {
-    log.error("Email and Nickname are required for signup", e);
-    final ErrorResponse response = ErrorResponse.of(SIGNUP_EMAIL_NICKNAME_REQUIRED);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_EMAIL_NICKNAME_REQUIRED.getStatus()));
+    return ResponseEntity.status(SIGNUP_EMAIL_REQUIRED.getStatus())
+        .body(ErrorResponse.of(SIGNUP_EMAIL_REQUIRED));
   }
 
+
+  /**
+   * 회원가입 유효성 검사 예외 처리
+   */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleSignupValidation(MethodArgumentNotValidException e) {
-    log.error("Signup validation error", e);
     List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 
     for (FieldError fieldError : fieldErrors) {
+      // 이메일이 비어 있을 때 (S003)
       if ("userEmail".equals(fieldError.getField())) {
-        final ErrorResponse response = ErrorResponse.of(SIGNUP_INVALID_EMAIL_FORMAT);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_INVALID_EMAIL_FORMAT.getStatus()));
+        return ResponseEntity.status(SIGNUP_INVALID_EMAIL_FORMAT.getStatus())
+            .body(ErrorResponse.of(SIGNUP_INVALID_EMAIL_FORMAT));
       }
 
+      // 닉네임 형식 오류 (S005)
       if ("nickname".equals(fieldError.getField())) {
-        final ErrorResponse response = ErrorResponse.of(SIGNUP_INVALID_NICKNAME_FORMAT);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(SIGNUP_INVALID_NICKNAME_FORMAT.getStatus()));
+        return ResponseEntity.status(SIGNUP_INVALID_NICKNAME_FORMAT.getStatus())
+            .body(ErrorResponse.of(SIGNUP_INVALID_NICKNAME_FORMAT));
       }
     }
 
-    final ErrorResponse response = ErrorResponse.of(FAIL_REQUEST_PARAMETER_VALIDATION);
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ErrorResponse.of(FAIL_REQUEST_PARAMETER_VALIDATION));
   }
 }

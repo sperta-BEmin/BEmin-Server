@@ -42,15 +42,15 @@ public class Product extends AuditableEntity {
   @Column(name = "image_url")
   private String imageUrl;
 
-  @Column(name = "is_hidden", nullable = false)
+  @Column(name = "is_hidden", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
   private boolean isHidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "store_id", nullable = true)
+  @JoinColumn(name = "store_id", nullable = false)
   private Store store;
 
-  @Column(name = "activated", nullable = false)
-  private boolean activated = true;
+  @Column(name = "activated", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+  private boolean activated;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
@@ -87,8 +87,6 @@ public class Product extends AuditableEntity {
   public void updateIsHidden(boolean state) {
     this.isHidden = state;
   }
-
-  public void updateComment(String comment) { this.comment = comment; }
 
   public void deleteProduct(String deletedBy, LocalDateTime time) {
     this.activated = false;

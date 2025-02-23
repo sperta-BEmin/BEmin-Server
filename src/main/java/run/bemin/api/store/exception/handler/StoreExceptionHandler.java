@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import run.bemin.api.general.exception.ErrorResponse;
 import run.bemin.api.general.exception.ErrorResponse.FieldError;
-import run.bemin.api.store.exception.CategoryCountExceededException;
 import run.bemin.api.store.exception.StoreAlreadyExistsByNameException;
 import run.bemin.api.store.exception.StoreNameInvalidException;
 import run.bemin.api.store.exception.StoreNotFoundException;
@@ -39,11 +38,4 @@ public class StoreExceptionHandler {
     return ResponseEntity.status(CATEGORY_ALREADY_EXISTS.getStatus())
         .body(ErrorResponse.of(CATEGORY_ALREADY_EXISTS, errors));
   }
-
-//  @ExceptionHandler(CategoryCountExceededException.class)
-//  public ResponseEntity<ErrorResponse> handleCategoryCountExceededException(CategoryCountExceededException e) {
-//    List<FieldError> errors = FieldError.of("categoryIds", e.getMessage(), "최대 4개 초과");
-//
-//    return ResponseEntity.status(400).body(ErrorResponse.of(ErrorCode.CATEGORY_COUNT_EXCEEDED, errors));
-//  }
 }

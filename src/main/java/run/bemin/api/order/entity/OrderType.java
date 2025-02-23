@@ -1,7 +1,6 @@
 package run.bemin.api.order.entity;
 
 import lombok.Getter;
-import run.bemin.api.order.exception.OrderTypeException;
 
 @Getter
 public enum OrderType {
@@ -23,6 +22,6 @@ public enum OrderType {
       }
     }
     // 추후 글로벌 익셉션으로...
-    throw new OrderTypeException("Not available OrderType code " + code);
+    throw new IllegalArgumentException("Not available OrderType code: " + code);
   }
 }

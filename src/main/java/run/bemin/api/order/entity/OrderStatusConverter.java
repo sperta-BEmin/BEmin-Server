@@ -3,7 +3,7 @@ package run.bemin.api.order.entity;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter
 public class OrderStatusConverter implements AttributeConverter<OrderStatus, Integer> {
 
   @Override

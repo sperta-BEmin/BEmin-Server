@@ -14,12 +14,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import run.bemin.api.category.entity.Category;
-import run.bemin.api.general.auditing.AuditableEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_store_category")
-public class StoreCategory extends AuditableEntity {
+public class StoreCategory {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,25 +33,40 @@ public class StoreCategory extends AuditableEntity {
   private Category category;
 
   @Column(name = "is_primary", nullable = false)
-  private boolean isPrimary;
+  private Boolean isPrimary;
 
   @Column(name = "is_deleted", nullable = false)
-  private boolean isDeleted = false;
+  private Boolean isDeleted;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
+  @Column(name = "created_by", nullable = false, updatable = false)
+  private String createdBy;
+
+  @Column(name = "updated_by")
+  private String updatedBy;
+
   @Column(name = "deleted_by")
   private String deletedBy;
 
-  private StoreCategory(Store store, Category category, boolean isPrimary) {
+  private StoreCategory(Store store, Category category, Boolean isPrimary, String createdBy) {
     this.store = store;
     this.category = category;
-    this.isPrimary = isPrimary;
+    this.isPrimary = isPrimary != null ? isPrimary : false;
+    this.isDeleted = false;
+    this.createdBy = createdBy;
+    this.createdAt = LocalDateTime.now();
   }
 
-  public static StoreCategory create(Store store, Category category, boolean isPrimary) {
-    return new StoreCategory(store, category, isPrimary);
+  public static StoreCategory create(Store store, Category category, Boolean isPrimary, String createdBy) {
+    return new StoreCategory(store, category, isPrimary, createdBy);
   }
 
   public void softDelete(String deletedBy) {
@@ -61,14 +75,9 @@ public class StoreCategory extends AuditableEntity {
     this.deletedAt = LocalDateTime.now();
   }
 
-  public void update(boolean isPrimary) {
-    this.isPrimary = isPrimary;
-  }
-
-  public void restore(String updatedBy, boolean isPrimary) {
-    this.isDeleted = false;
-    this.deletedBy = null;
-    this.deletedAt = null;
-    update(isPrimary);
+  public void update(String updatedBy, Boolean isPrimary) {
+    this.updatedBy = updatedBy;
+    this.updatedAt = LocalDateTime.now();
+    this.isPrimary = isPrimary != null ? isPrimary : this.isPrimary;
   }
 }
