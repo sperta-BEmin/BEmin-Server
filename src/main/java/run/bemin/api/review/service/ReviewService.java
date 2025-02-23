@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import run.bemin.api.auth.jwt.JwtUtil;
 import run.bemin.api.general.exception.ErrorCode;
 import run.bemin.api.order.entity.Order;
+import run.bemin.api.order.entity.OrderStatus;
 import run.bemin.api.order.repo.OrderRepository;
-import run.bemin.api.review.domain.ReviewRating;
+import run.bemin.api.payment.entity.Payment;
+import run.bemin.api.payment.repository.PaymentRepository;
 import run.bemin.api.review.dto.PageInfoDto;
 import run.bemin.api.review.dto.PagedReviewResponseDto;
 import run.bemin.api.review.dto.ReviewCreateRequestDto;
@@ -34,6 +36,7 @@ import run.bemin.api.user.repository.UserRepository;
 @RequiredArgsConstructor
 public class ReviewService {
 
+  private final PaymentRepository paymentRepository;
   private final ReviewRepository reviewRepository;
   private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
@@ -43,7 +46,7 @@ public class ReviewService {
   // 토큰 추출하기
   public String extractToken(String token) {
     if (token == null || !token.startsWith("Bearer ")) {
-      throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+      throw new ReviewException(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     String extractToken = token.substring(7);
@@ -51,30 +54,40 @@ public class ReviewService {
   }
 
   // order 찾기
-  private Order getOrder(ReviewCreateRequestDto requestDto) {
-    Order order = orderRepository.findById(UUID.fromString(requestDto.getOrderId()))
-        .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
+  private Order getOrder(UUID orderId) {
+    log.info("조회하려는 orderId : {}", orderId);
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new ReviewException(ErrorCode.ORDER_NOT_FOUND));
+
+    log.info("조회하려는 orderId의 order status : {}", order.getOrderStatus());
     return order;
   }
 
   // user 찾기
   private User getUser(String userEmail) {
     User user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ReviewException(ErrorCode.USER_LIST_NOT_FOUND));
     return user;
   }
 
+  // payment 찾기
+  private Payment getPayment(UUID paymentId) {
+    Payment payment = paymentRepository.findById(paymentId)
+        .orElseThrow(() -> new ReviewException(ErrorCode.PAYMENT_NOT_FOUND));
+    return payment;
+  }
+
   // store 찾기
-  private Store getStore(ReviewCreateRequestDto requestDto) {
-    Store store = storeRepository.findById(UUID.fromString(requestDto.getStoreId()))
-        .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+  private Store getStore(UUID storeId) {
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new ReviewException(ErrorCode.STORE_NOT_FOUND));
     return store;
   }
 
   // review 찾기
   private Review getReview(UUID reviewId) {
     Review review = reviewRepository.findById(reviewId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
     return review;
   }
 
@@ -96,26 +109,41 @@ public class ReviewService {
     return new PagedReviewResponseDto(storeId, reviews, pageInfo);
   }
 
+  private boolean isOrderStatusReviewable(OrderStatus orderStatus) {
+    return orderStatus == OrderStatus.DELIVERY_COMPLETED ||
+        orderStatus == OrderStatus.TAKEOUT_COMPLETED ||
+        orderStatus == OrderStatus.TAKEOUT_HANDOVER_COMPLETED;
+  }
+
   // 리뷰 생성
   @Transactional
   public ReviewCreateResponseDto createReview(String authToken, ReviewCreateRequestDto requestDto) {
     // JWT 토큰에서 사용자 이메일 추출
     String userEmail = extractToken(authToken);
 
-    // error code 수정하기
-    Order order = getOrder(requestDto);
+    // order 가져오기
+    Order order = getOrder(UUID.fromString(requestDto.getOrderId()));
 
+    // 주문 상태 체크: 허용된 상태가 아니면 예외 발생
+    if (!isOrderStatusReviewable(order.getOrderStatus())) {
+      throw new ReviewException(ErrorCode.ORDER_NOT_REVIEWABLE);
+    }
+
+    // user 가져오기
     User user = getUser(userEmail);
 
-    Store store = getStore(requestDto);
+    // store 가져오기
+    Store store = getStore(UUID.fromString(requestDto.getStoreId()));
 
-    log.info("리뷰 저장할 떄 description : {}", requestDto.getDescription());
+    // payment 가져오기
+    Payment payment = getPayment(UUID.fromString(requestDto.getPaymentId()));
 
     Review review = Review.builder()
+        .payment(payment)
         .order(order)
         .store(store)
         .user(user)
-        .reviewRating(ReviewRating.fromValue(requestDto.getReviewRating()))
+        .reviewRating(requestDto.toReviewRating())
         .description(requestDto.getDescription())
         .build();
 
@@ -130,7 +158,6 @@ public class ReviewService {
     // JWT 토큰에서 사용자 이메일 추출
     String userEmail = extractToken(authToken);
 
-    // error code 수정하기
     // 사용자 조회
     User user = getUser(userEmail);
 
@@ -139,11 +166,11 @@ public class ReviewService {
 
     // 리뷰 작성자와 현재 로그인한 사용자 비교
     if (!review.getUser().equals(user)) {
-      throw new ReviewException(ErrorCode.REVIEW_FORBIDDEN);
+      throw new ReviewException(ErrorCode.REVIEW_CANNOT_FIX);
     }
 
     // 리뷰 수정
-    review.updateReview(request.getReviewRating(), request.getDescription());
+    review.updateReview(request.toReviewRating(), request.getDescription());
 
     return ReviewUpdateResponseDto.from(review);
   }
@@ -162,19 +189,19 @@ public class ReviewService {
 
     // 리뷰 작성자와 현재 로그인한 사용자 비교
     if (!review.getUser().equals(user)) {
-      throw new ReviewException(ErrorCode.REVIEW_FORBIDDEN);
+      throw new ReviewException(ErrorCode.REVIEW_CANNOT_FIX);
     }
 
-    review.deletedBy(userEmail);
+    review.deleteReview(userEmail);
 
     return ReviewDeleteResponseDto.from(review);
   }
 
   // 특정 가게의 평균 평점 계산
   @Transactional
-  public double getAvgRatingByStore(UUID storeId) {
+  public Double getAvgRatingByStore(UUID storeId) {
     double avg = reviewRepository.findAverageRatingByStore(storeId);
-    log.info("가게 평점 : {}", avg);
+    log.info("avg : {}", avg);
     return avg;
   }
 }
