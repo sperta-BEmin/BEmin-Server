@@ -109,8 +109,6 @@ public class ReviewService {
 
     Store store = getStore(requestDto);
 
-    log.info("리뷰 저장할 떄 description : {}", requestDto.getDescription());
-
     Review review = Review.builder()
         .order(order)
         .store(store)
@@ -177,4 +175,22 @@ public class ReviewService {
     log.info("가게 평점 : {}", avg);
     return avg;
   }
+
+  // 리뷰 등록 후 비동기적으로 가게 평점 업데이트
+//  @Async
+//  @Transactional
+//  public void updateStoreRating(UUID storeId) {
+//    System.out.println("리뷰 업데이트 스레드: " + Thread.currentThread().getName());
+//
+//    // getAvgRatingByStore 메서드를 통해 평균 평점을 계산
+//    double avgRating = getAvgRatingByStore(storeId);
+//
+//    // 해당 가게 엔티티를 조회하여 평점 업데이트
+//    Store store = storeRepository.findById(storeId)
+//        .orElseThrow(() -> new RuntimeException("해당 가게를 찾을 수 없습니다."));
+//    store.updateRating((float) avgRating);
+//
+//    // 업데이트된 가게 엔티티 저장
+//    storeRepository.save(store);
+//  }
 }

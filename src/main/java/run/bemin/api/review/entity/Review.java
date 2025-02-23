@@ -20,8 +20,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import run.bemin.api.general.auditing.AuditableEntity;
 import run.bemin.api.order.entity.Order;
+import run.bemin.api.order.entity.OrderStatus;
+import run.bemin.api.payment.entity.Payment;
 import run.bemin.api.review.domain.ReviewRating;
 import run.bemin.api.review.domain.ReviewStatus;
+import run.bemin.api.review.exception.ReviewException;
 import run.bemin.api.store.entity.Store;
 import run.bemin.api.user.entity.User;
 
@@ -35,7 +38,11 @@ public class Review extends AuditableEntity {
   private UUID reviewId;
 
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_id", nullable = false)
+  @JoinColumn(name = "payment_id", nullable = false, unique = true)
+  private Payment payment;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "order_id", nullable = false, unique = true)
   private Order order;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -60,6 +67,13 @@ public class Review extends AuditableEntity {
   private String deletedBy;
   private LocalDateTime deletedAt;
 
+  // 결제 완료된 주문인지 검증
+  public boolean isPaidOrder() {
+    return order.getOrderStatus() == OrderStatus.DELIVERY_COMPLETED
+        || order.getOrderStatus() == OrderStatus.TAKEOUT_COMPLETED
+        || order.getOrderStatus() == OrderStatus.TAKEOUT_HANDOVER_COMPLETED;
+  }
+
   // 리뷰 수정하기
   public void updateReview(ReviewRating reviewRating, String description) {
     this.reviewRating = reviewRating;
@@ -74,7 +88,11 @@ public class Review extends AuditableEntity {
   }
 
   @Builder
-  public Review(Order order, Store store, User user, ReviewRating reviewRating, String description) {
+  public Review(Payment payment, Order order, Store store, User user, ReviewRating reviewRating, String description) {
+    if (!isPaidOrder()) {
+      throw new ReviewException()
+    }
+    this.payment = payment;
     this.order = order;
     this.store = store;
     this.user = user;
