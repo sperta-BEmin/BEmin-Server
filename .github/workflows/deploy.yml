@@ -62,11 +62,13 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script_stop: true
           script: |
-            docker stop bemin-api-server || true  
-            docker rm bemin-api-server || true
-            docker pull ${{ steps.ecr-login.outputs.registry }}/bemin-api-server:latest
-            
+            echo ${{ steps.ecr-login.outputs.registry }}
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.ecr-login.outputs.registry }}
+            
+            docker ps -a | grep bemin-api-server || docker stop bemin-api-server || true
+            docker ps -a | grep bemin-api-server || docker rm bemin-api-server || true
+            
+            docker pull ${{ steps.ecr-login.outputs.registry }}/bemin-api-server:latest
             
             # Redis 연결용 네트워크 생성
             # docker network rm redis-network || true && docker network create redis-network
