@@ -63,7 +63,6 @@ jobs:
           script_stop: true
           script: |
             echo ${{ steps.ecr-login.outputs.registry }}
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.ecr-login.outputs.registry }}
             
             docker ps -a | grep bemin-api-server || docker stop bemin-api-server || true
             docker ps -a | grep bemin-api-server || docker rm bemin-api-server || true
