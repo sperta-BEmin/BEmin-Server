@@ -66,6 +66,8 @@ jobs:
             docker rm bemin-api-server || true
             docker pull ${{ steps.ecr-login.outputs.registry }}/bemin-api-server:latest
             
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.ecr-login.outputs.registry }}
+            
             # Redis 연결용 네트워크 생성
             # docker network rm redis-network || true && docker network create redis-network
 
