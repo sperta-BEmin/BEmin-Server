@@ -255,12 +255,17 @@
 
 <br>
 
+
+
 ## 🍃 Contributors
 
 **👜 Github Repository**
 
 - [BEmin-Server](https://github.com/sperta-BEmin/BEmin-Server)
 - [BEMin-Front](https://github.com/sperta-BEmin/BEMIN-Front)
+
+**📓 Document**
+- [Bemin_발표자료.pdf](https://github.com/user-attachments/files/18977932/Bemin_.pdf)
 
 **🫰Team Notion**
 
